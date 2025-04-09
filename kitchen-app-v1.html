@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="kitchen-app-style.css">
-    <title>Document</title>
+    <title>Kitchen-App-v1</title>
 </head>
 <body>
     <div class="background">
@@ -12,22 +12,37 @@
             <div class="phone">
                 
                 <!-- HOME TAB -->
+
                 <div class="tab-content active" id="tab1">
                     <h2 class="tab-title">Home</h2>
                 </div>
                 
                 <!-- INVENTORY TAB -->
+
                 <div class="tab-content" id="tab2">
                     <h2 class="tab-title">Inventory</h2>
                     
-                    <form id="inventory-form" onsubmit="addToInventory2(event)">
-                        <label for="item">Item/Quantity:</label>
-                        
-                        <input type="text" id="inv-item" placeholder="Enter item name" required>
-                        <input type="number" id="inv-quantity" placeholder="Enter quantity" min="1" >
-                        
-                        <button type="submit">➕</button>
-                    </form>
+                    <div style="display: block;" class="inventory-grid-view" if="inventory-grid-view">
+                        <div class="new-inventory">  
+                            <input type="text" id="new-inventory-name" placeholder="New Inventory Name" required>
+                            <button class="new-inventory-button" onclick="createNewInventory()">➕</button>
+                        </div>
+                        <div class="inventory-grid" id="inventory-grid">
+                            
+                            
+                        </div>
+                    </div>
+
+                    <div style="display: none;" class="inventory-content">
+                        <button class="back-grid" onclick="showGrid2()">⬅</button>
+                        <form class="inventory-form" id="inventory-form" onsubmit="addToInventory2(event)">
+                            <div class="input-group">
+                                <input type="text" id="inv-item" placeholder="Item" required>
+                                <input type="number" id="inv-quantity" placeholder="Quantity" min="1">
+                                <button type="submit">➕</button>
+                            </div>
+                        </form>
+                    </div>
 
                     
                     <ul id="inventory">
@@ -35,9 +50,47 @@
                     </ul>
                     
                     <script>
-                        const inventory = [];
+                        const inventories = {'Fridge':[]};
+
+                        let currentInventory = 'Fridge';
+
+                        function updateGrid2() {
+                            const grid = document.getElementById("inventory-grid");
+                            grid.innerHTML = '';
+
+                            for (const inventoryName in inventories) {
+                                const inventory = document.createElement('div');
+                                inventory.className = 'inventory-item';
+                                inventory.textContent = inventoryName;
+
+                                inventory.onclick = () => showInventory(inventoryName);
+                                grid.appendChild(inventory);
+                            }
+
+                        }
+
+                        function createNewInventory() {
+                            const newInventoryName = document.getElementById('new-inventory-name').value.trim();
+                            if (newInventoryName) {
+                                inventories[newInventoryName] = [];
+                                updateGrid2();
+                            }
+                        }
+
+                        function showInventory(inventoryName) {
+                            inventory = inventories[inventoryName];
+                            document.querySelector('.inventory-grid-view').style.display = 'none';
+                            document.querySelector('.inventory-content').style.display = 'block';
+                            updateInventory();
+                        }
+
+                        function showGrid2() {
+                            document.querySelector('.inventory-grid-view').style.display = 'block';
+                            document.querySelector('.inventory-content').style.display = 'none';
+                        }
 
                         function addToInventory(item, quantity) {
+                            const inventory = inventories[currentInventory];
                             const existingItem = inventory.find(i => i.item === item);
                             if (existingItem) {
                                 existingItem.quantity += parseInt(quantity, 10); 
@@ -46,6 +99,8 @@
                             }
 
                             updateInventory(); 
+
+                            
                         }
 
                         function addToInventory2(event) {
@@ -117,51 +172,84 @@
                             
                         }   
 
+                        updateGrid2();
+
                     </script>
                     
                 </div>
 
 
                 <!-- SHOPPING LIST TAB -->
+
                 <div class="tab-content" id="tab3">
-                    <h2 class="tab-title">Shopping List</h2>
+                    <h2 class="tab-title">Shopping Lists</h2>
 
-                    <form id="shopping-list-form" onsubmit="addItem(event)">
-                        <label for="item">Item/Quantity:</label>
-                        
-                        <input type="text" id="item" placeholder="Enter item name" required>
-                        <input type="number" id="quantity" placeholder="Enter quantity" min="1" >
-                        
-                        <button type="submit">➕</button>
-                    </form>
+                    <div style="display: block;" class="shopping-lists-grid-view" if="shopping-lists-grid-view">
+                        <div class="new-list">  
+                            <input type="text" id="new-list-name" placeholder="New List Name" required>
+                            <button class="new-list-button" onclick="createNewList()">➕</button>
+                        </div>
+                        <div class="shopping-lists-grid" id="shopping-lists-grid">
+                            
+                            
+                        </div>
 
-                    <ul id="shopping-list">
+                    </div>
 
-                    </ul>
+                    
+                    <div style="display: none;" class="shopping-list-content">
+                        <button class="back-grid" onclick="showGrid()">⬅</button>
+                        <form class="shopping-list-form" id="shopping-list-form" onsubmit="addItem(event)">
+                            <div class="input-group">
+                                <input type="text" id="item" placeholder="Item" required>
+                                <input type="number" id="quantity" placeholder="Quantity" min="1" >
+                                <button type="submit">➕</button>
+                            </div>
+                        </form>
 
+                        <ul id="shopping-list"></ul>
+                    </div>
+                
                     <script>
 
-                        const shoppingList = [];
+                        const shoppingLists = {'List 1':[]};
 
-                        function addItem(event) {
-                            event.preventDefault();
-                            const item = document.getElementById('item').value;
-                            let quantity = document.getElementById('quantity').value;
+                        let currentList = 'List 1';
 
-                            if (!quantity) {
-                                quantity = 1;
+                        function updateGrid() {
+                            const grid = document.getElementById("shopping-lists-grid");
+                            grid.innerHTML = '';
+
+                            for (const listName in shoppingLists) {
+                                const list = document.createElement('div');
+                                list.className = 'shopping-list';
+                                list.textContent = listName;
+
+                                list.onclick = () => showList(listName);
+                                grid.appendChild(list);
                             }
 
-                            shoppingList.push({ item, quantity });
-                            updateShoppingList();
-                        
-                            //const listItem = document.createElement('li');
-                            //listItem.textContent = `${item} (${quantity})`;
-
-                            //document.getElementById('shopping-list').appendChild(listItem);
-                            //document.getElementById('shopping-list-form').reset();
                         }
 
+                        function createNewList() {
+                            const newListName = document.getElementById('new-list-name').value.trim();
+                            if (newListName) {
+                                shoppingLists[newListName] = [];
+                                updateGrid();
+                            }
+                        }
+
+                        function showList(listName) {
+                            shoppingList = shoppingLists[listName];
+                            document.querySelector('.shopping-lists-grid-view').style.display = 'none';
+                            document.querySelector('.shopping-list-content').style.display = 'block';
+                            updateShoppingList();
+                        }
+                        
+                        function showGrid() {
+                            document.querySelector('.shopping-lists-grid-view').style.display = 'block';
+                            document.querySelector('.shopping-list-content').style.display = 'none';
+                        }
                         function updateShoppingList() {
                             const list = document.getElementById('shopping-list');
                             list.innerHTML = '';
@@ -185,34 +273,58 @@
                                 list.appendChild(listItem);
                             });
                         }
-                        
+
+                        function addItem(event) {
+                            event.preventDefault();
+                            const item = document.getElementById('item').value;
+                            let quantity = document.getElementById('quantity').value;
+
+                            if (!quantity) {
+                                quantity = 1;
+                            }
+
+                            shoppingList.push({ item, quantity });
+                            updateShoppingList();
+
+                            //const listItem = document.createElement('li');
+                            //listItem.textContent = `${item} (${quantity})`;
+
+                            //document.getElementById('shopping-list').appendChild(listItem);
+                            document.getElementById('shopping-list-form').reset();
+                        }
+
                         function removeItem(index) {
                             shoppingList.splice(index, 1);
                             updateShoppingList();
                         }
+
+                        updateGrid();
                     </script>
                 </div>
                 
 
                 <!-- PROFILE TAB -->
+
                 <div class="tab-content" id="tab4">
                     
                     <h2 class="tab-title">Profile</h2>
 
-                    
-                    <form id="profile-form">
-                        <label for="name">Name</label>
-                        <input type="text" id="name" value="John Doe"><br><br>
+                    <div class="profile-info">
 
-                        <label for="email">Email</label>
-                        <input type="email" id="email" value="johndoe@example.com"><br><br>
+                        <form class="profile-form" id="profile-form">
+                            
+                            <label for="name">Name</label>
+                            <input style ="text-align:center;" type="text" id="name" value="John Doe"><br><br>
 
-                        <label for="address">Address</label>
-                        <input type="text" id="address" value="University of Maryland"><br><br>
+                            <label for="email">Email</label>
+                            <input style ="text-align:center;" type="email" id="email" value="jd1234@example.com"><br><br>
 
-                        <button type="button" onclick="saveProfile()">Save</button>
-                    </form>
+                            <label for="address">Address</label>
+                            <input style ="text-align:center;" type="text" id="address" value="University of Maryland"><br><br>
 
+                            <button type="button" onclick="saveProfile()">Save</button>
+                        </form>
+                    </div>
                     <script>
                         function saveProfile() {
                             const name = document.getElementById('name').value;
@@ -231,20 +343,21 @@
                     <button onclick="showTab(3)">📋<br>Shopping List</button>
                     <button onclick="showTab(4)">👤<br>Profile</button>
 
+                    <script>
+                        function showTab(tabNum) {
+                          document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+                          document.getElementById("tab" + tabNum).classList.add("active");
+                    
+                          document.querySelectorAll(".tab-bar button").forEach(btn => btn.classList.remove("active"));
+                          document.querySelectorAll(".tab-bar button")[tabNum - 1].classList.add("active");
+                        }
+                    </script>
                 </div>
                 
             </div>
         </div>
     </div>
     
-    <script>
-        function showTab(tabNum) {
-          document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
-          document.getElementById("tab" + tabNum).classList.add("active");
     
-          document.querySelectorAll(".tab-bar button").forEach(btn => btn.classList.remove("active"));
-          document.querySelectorAll(".tab-bar button")[tabNum - 1].classList.add("active");
-        }
-    </script>
 </body>
 </html>
