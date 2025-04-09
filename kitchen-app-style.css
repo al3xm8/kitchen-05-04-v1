@@ -21,6 +21,15 @@
     overflow: hidden;
 }
 
+.tab-title {
+    display: flex;
+    text-align: center;
+
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    padding: 10px;
+}
 .tab-content {
     display: none;
     flex-grow: 1;
@@ -56,19 +65,4 @@
 .tab-bar button.active {
     background-color: rgb(221, 221, 221);
     font-size: 17px;
-}
-
-.profile-avatar {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 20px 0;
-}
-
-.profile-avatar img {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    border: 2px solid #ccc;
-
 }

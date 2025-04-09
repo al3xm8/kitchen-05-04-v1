@@ -13,39 +13,202 @@
                 
                 <!-- HOME TAB -->
                 <div class="tab-content active" id="tab1">
-                    <h2>Home</h2>
+                    <h2 class="tab-title">Home</h2>
                 </div>
                 
-                <!-- iNVENTORY TAB -->
+                <!-- INVENTORY TAB -->
                 <div class="tab-content" id="tab2">
-                    <h2>In Fridge</h2>
+                    <h2 class="tab-title">Inventory</h2>
+                    
+                    <form id="inventory-form" onsubmit="addToInventory2(event)">
+                        <label for="item">Item/Quantity:</label>
+                        
+                        <input type="text" id="inv-item" placeholder="Enter item name" required>
+                        <input type="number" id="inv-quantity" placeholder="Enter quantity" min="1" >
+                        
+                        <button type="submit">➕</button>
+                    </form>
+
+                    
+                    <ul id="inventory">
+
+                    </ul>
+                    
+                    <script>
+                        const inventory = [];
+
+                        function addToInventory(item, quantity) {
+                            const existingItem = inventory.find(i => i.item === item);
+                            if (existingItem) {
+                                existingItem.quantity += parseInt(quantity, 10); 
+                            } else {
+                                inventory.push({ item, quantity: parseInt(quantity, 10) });
+                            }
+
+                            updateInventory(); 
+                        }
+
+                        function addToInventory2(event) {
+                            event.preventDefault();
+                            const item = document.getElementById('inv-item').value;
+                            let quantity = document.getElementById('inv-quantity').value;
+
+                            if (!quantity) {
+                                quantity = 1;
+                            }
+
+                            addToInventory(item, quantity);
+                            
+                            document.getElementById('inventory-form').reset(); 
+                        }
+
+                        function updateInventory() {
+                            const list = document.getElementById('inventory');
+                            list.innerHTML = '';
+
+                            inventory.forEach((entry, index) => {
+                                const listItem = document.createElement('li');
+                                listItem.textContent = `${entry.item} (${entry.quantity})`;
+
+                                const removeButton = document.createElement('button');
+                                const minusButton = document.createElement('button');
+                                const plusButton = document.createElement('button');
+
+                                removeButton.textContent = '❌';
+                                removeButton.onclick = () => removeFromInventory(index); 
+
+                                minusButton.textContent = '➖';
+                                minusButton.onclick = () => minusFromInventory(entry.item, 1);
+
+                                plusButton.textContent = '➕';
+                                plusButton.onclick = () => addToInventory(entry.item, 1);
+
+                                listItem.appendChild(plusButton);
+                                listItem.appendChild(minusButton);
+                                listItem.appendChild(removeButton); 
+                               
+                                
+                                list.appendChild(listItem); 
+                            });
+                        }
+
+                        function minusFromInventory(item, quantity) {
+
+                            const existingItem = inventory.find(i => i.item === item);
+                            if (existingItem) {
+                                existingItem.quantity -= parseInt(quantity, 10); 
+                                
+                            
+                                if (existingItem.quantity <= 0) {
+                                    const index = inventory.indexOf(existingItem);
+                                    inventory.splice(index, 1);
+                                }
+
+                            }
+
+                            updateInventory(); 
+                            
+                        }
+
+                        function removeFromInventory(index) {
+                            inventory.splice(index, 1); 
+                            
+                            updateInventory(); 
+                            
+                        }   
+
+                    </script>
+                    
                 </div>
 
 
                 <!-- SHOPPING LIST TAB -->
                 <div class="tab-content" id="tab3">
-                    <h2>Shopping List</h2>
+                    <h2 class="tab-title">Shopping List</h2>
+
+                    <form id="shopping-list-form" onsubmit="addItem(event)">
+                        <label for="item">Item/Quantity:</label>
+                        
+                        <input type="text" id="item" placeholder="Enter item name" required>
+                        <input type="number" id="quantity" placeholder="Enter quantity" min="1" >
+                        
+                        <button type="submit">➕</button>
+                    </form>
+
+                    <ul id="shopping-list">
+
+                    </ul>
+
+                    <script>
+
+                        const shoppingList = [];
+
+                        function addItem(event) {
+                            event.preventDefault();
+                            const item = document.getElementById('item').value;
+                            let quantity = document.getElementById('quantity').value;
+
+                            if (!quantity) {
+                                quantity = 1;
+                            }
+
+                            shoppingList.push({ item, quantity });
+                            updateShoppingList();
+                        
+                            //const listItem = document.createElement('li');
+                            //listItem.textContent = `${item} (${quantity})`;
+
+                            //document.getElementById('shopping-list').appendChild(listItem);
+                            //document.getElementById('shopping-list-form').reset();
+                        }
+
+                        function updateShoppingList() {
+                            const list = document.getElementById('shopping-list');
+                            list.innerHTML = '';
+
+                            shoppingList.forEach((entry, index) => {
+                                const listItem = document.createElement('li');
+                                listItem.textContent = `${entry.item} (${entry.quantity})`;
+
+                                const removeButton = document.createElement('button');
+                                const addButton = document.createElement('button');
+                                
+                                addButton.textContent = '✔';
+                                removeButton.textContent = '❌';
+
+                                addButton.onclick = () => addToInventory(entry.item, entry.quantity);
+                                removeButton.onclick = () => removeItem(index);
+                                
+                                listItem.appendChild(addButton);
+                                listItem.appendChild(removeButton);
+                                
+                                list.appendChild(listItem);
+                            });
+                        }
+                        
+                        function removeItem(index) {
+                            shoppingList.splice(index, 1);
+                            updateShoppingList();
+                        }
+                    </script>
                 </div>
                 
 
                 <!-- PROFILE TAB -->
                 <div class="tab-content" id="tab4">
                     
-                    <h2>Profile</h2>
-                    
-                    <div class="profile-avatar">
-                        <img src="avatar-placeholder.png" alt="Profile Avatar">
-                    </div>
+                    <h2 class="tab-title">Profile</h2>
+
                     
                     <form id="profile-form">
-                        <label for="name">Name:</label>
+                        <label for="name">Name</label>
                         <input type="text" id="name" value="John Doe"><br><br>
 
-                        <label for="email">Email:</label>
+                        <label for="email">Email</label>
                         <input type="email" id="email" value="johndoe@example.com"><br><br>
 
-                        <label for="address">Address:</label>
-                        <input type="text" id="address" value="123 Main St"><br><br>
+                        <label for="address">Address</label>
+                        <input type="text" id="address" value="University of Maryland"><br><br>
 
                         <button type="button" onclick="saveProfile()">Save</button>
                     </form>
@@ -54,7 +217,8 @@
                         function saveProfile() {
                             const name = document.getElementById('name').value;
                             const email = document.getElementById('email').value;
-                            const address = document.getElementById('address').value;                        }
+                            const address = document.getElementById('address').value;                        
+                        }
                     </script>
                 </div>
 
