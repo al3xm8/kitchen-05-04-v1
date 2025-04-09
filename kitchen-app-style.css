@@ -68,7 +68,7 @@
 .profile-avatar img {
     width: 100px;
     height: 100px;
-    border-radius: 50%; /* Makes the image a circle */
-    border: 2px solid #ccc; /* Optional: Add a border */
-    object-fit: cover; /* Ensures the image fits within the circle */
+    border-radius: 50%;
+    border: 2px solid #ccc;
+
 }
