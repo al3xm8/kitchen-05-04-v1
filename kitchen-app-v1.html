@@ -1,237 +1,324 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="kitchen-app-style.css">
-    <title>Kitchen-App-v1</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="kitchen-app-style.css">
+  <title>Kitchen-App-v1</title>
 </head>
 <body>
-    <div class="background">
-        <div class="app">
-            <div class="phone">
-
-                <!-- HOME TAB -->
-                <div class="tab-content active" id="tab1">
-                    <h2 class="tab-title">Home</h2>
-                </div>
-
-                <!-- INVENTORY TAB -->
-                <div class="tab-content" id="tab2">
-                    <h2 class="tab-title">Inventory</h2>
-
-                    <div style="display: block;" class="inventory-grid-view">
-                        <div class="new-inventory">
-                            <input type="text" id="new-inventory-name" placeholder="New Inventory Name" required>
-                            <button class="new-inventory-button" onclick="createNewInventory()">➕</button>
-                        </div>
-                        <div class="inventory-grid" id="inventory-grid"></div>
-                    </div>
-
-                    <div style="display: none;" class="inventory-content">
-                        <button class="back-grid" onclick="showGrid2()">⬅</button>
-                        <h3 id="current-inventory-name" style="text-align:center; margin-bottom: 10px;"></h3>
-                        <form class="inventory-form" id="inventory-form" onsubmit="addToInventory2(event)">
-                            <div class="input-group">
-                                <input type="text" id="inv-item" placeholder="Item" required>
-                                <input type="number" id="inv-quantity" placeholder="Quantity" min="1">
-                                <button type="submit">➕</button>
-                            </div>
-                        </form>
-                        <div class="inventory-items-container">
-                            <h4>Items in this inventory:</h4>
-                            <ul id="inventory"></ul>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SHOPPING LIST TAB -->
-                <div class="tab-content" id="tab3">
-                    <h2 class="tab-title">Shopping Lists</h2>
-                    <!-- Shopping List UI unchanged -->
-                </div>
-
-                <!-- RECIPES TAB -->
-                <div class="tab-content" id="tab4">
-                    <h2 class="tab-title">Recipes</h2>
-                    <button onclick="renderRecipes()">🔄 Refresh</button>
-                    <ul id="recipe-list"></ul>
-                </div>
-
-                <!-- PROFILE TAB -->
-                <div class="tab-content" id="tab5">
-                    <h2 class="tab-title">Profile</h2>
-                    <!-- Profile UI unchanged -->
-                </div>
-
-                <!-- TAB BAR -->
-                <div class="tab-bar">
-                    <button class="active" onclick="showTab(1)">🏠<br>Home</button>
-                    <button onclick="showTab(2)">🥚<br>Inventory</button>
-                    <button onclick="showTab(3)">📋<br>Shopping List</button>
-                    <button onclick="showTab(4)">📖<br>Recipes</button>
-                    <button onclick="showTab(5)">👤<br>Profile</button>
-
-                    <script>
-                        function showTab(tabNum) {
-                            document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
-                            document.getElementById("tab" + tabNum).classList.add("active");
-
-                            document.querySelectorAll(".tab-bar button").forEach(btn => btn.classList.remove("active"));
-                            document.querySelectorAll(".tab-bar button")[tabNum - 1].classList.add("active");
-
-                            if (tabNum === 4) {
-                                renderRecipes();
-                            }
-                        }
-                    </script>
-                </div>
-
-            </div>
+  <div class="background">
+    <div class="app">
+      <div class="phone">
+        <!-- HOME TAB -->
+        <div class="tab-content active" id="tab1">
+          <h2 class="tab-title">Home</h2>
         </div>
+
+        <!-- INVENTORY TAB -->
+        <div class="tab-content" id="tab2">
+          <h2 class="tab-title">Inventory</h2>
+          <div style="display: block;" class="inventory-grid-view">
+            <div class="new-inventory">
+              <input type="text" id="new-inventory-name" placeholder="New Inventory Name" required>
+              <button class="new-inventory-button" onclick="createNewInventory()">➕</button>
+            </div>
+            <div class="inventory-grid" id="inventory-grid"></div>
+          </div>
+          <div style="display: none;" class="inventory-content">
+            <button class="back-grid" onclick="showGrid2()">⬅</button>
+            <h3 id="current-inventory-name" style="text-align:center; margin-bottom: 10px;"></h3>
+            <form class="inventory-form" id="inventory-form" onsubmit="addToInventory2(event)">
+              <div class="input-group">
+                <input type="text" id="inv-item" placeholder="Item" required>
+                <input type="number" id="inv-quantity" placeholder="Quantity" min="1">
+                <button type="submit">➕</button>
+              </div>
+            </form>
+            <div class="inventory-items-container">
+              <h4>Items in this inventory:</h4>
+              <ul id="inventory"></ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- SHOPPING LIST TAB -->
+        <div class="tab-content" id="tab3">
+          <h2 class="tab-title">Shopping Lists</h2>
+          <div class="shopping-list-buttons">
+            <button id="addItemButton" onclick="addItem()">Add</button>
+          </div>
+          <div id="shopping-list-box" class="shopping-list-box">
+            <h3>Items Needed:</h3>
+            <ul id="shopping-list-items"></ul>
+          </div>
+        </div>
+
+        <!-- RECIPES TAB -->
+        <div class="tab-content" id="tab4">
+          <h2 class="tab-title">Recipes</h2>
+          <button onclick="renderRecipes()">🔄 Refresh</button>
+          <button onclick="openRecipeModal()">➕ Add Recipe</button>
+          <ul id="recipe-list"></ul>
+        </div>
+
+        <!-- PROFILE TAB -->
+        <div class="tab-content" id="tab5">
+          <h2 class="tab-title">Profile</h2>
+        </div>
+
+        <!-- TAB BAR -->
+        <div class="tab-bar">
+          <button class="active" onclick="showTab(1)">🏠<br>Home</button>
+          <button onclick="showTab(2)">🥚<br>Inventory</button>
+          <button onclick="showTab(3)">📋<br>Shopping List</button>
+          <button onclick="showTab(4)">📖<br>Recipes</button>
+          <button onclick="showTab(5)">👤<br>Profile</button>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <script>
-        const inventories = { 'Fridge': [] };
-        let currentInventory = 'Fridge';
-        let inventory = inventories[currentInventory];
+  <!-- Recipe Modal -->
+  <div id="recipeModal" class="modal">
+    <div class="modal-content">
+      <h3>Add New Recipe</h3>
+      <input type="text" id="new-recipe-name" placeholder="Recipe Name">
+      <input type="text" id="new-ingredient" placeholder="Ingredient">
+      <button onclick="addIngredientToNewRecipe()">Add Ingredient</button>
+      <ul id="new-ingredients-list"></ul>
+      <button onclick="saveNewRecipe()">Done</button>
+      <button onclick="closeRecipeModal()">Cancel</button>
+    </div>
+  </div>
 
-        function updateGrid2() {
-            const grid = document.getElementById("inventory-grid");
-            grid.innerHTML = '';
+  <script>
+    const inventories = { 'Fridge': [] };
+    let currentInventory = 'Fridge';
+    let inventory = inventories[currentInventory];
+    const recipes = [
+      { name: "Omelette", ingredients: ["Eggs", "Milk", "Salt"] },
+      { name: "Pasta", ingredients: ["Pasta", "Tomato Sauce", "Olive Oil"] },
+      { name: "Salad", ingredients: ["Lettuce", "Tomato", "Cucumber"] }
+    ];
+    let newRecipeIngredients = [];
+    const shoppingList = ["Milk", "Bread", "Eggs"];
 
-            for (const inventoryName in inventories) {
-                const inventoryDiv = document.createElement('div');
-                inventoryDiv.className = 'inventory-item';
-                inventoryDiv.textContent = inventoryName;
-                inventoryDiv.onclick = () => showInventory(inventoryName);
-                grid.appendChild(inventoryDiv);
-            }
-        }
+    function showTab(tabNum) {
+      document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+      document.getElementById("tab" + tabNum).classList.add("active");
+      document.querySelectorAll(".tab-bar button").forEach(btn => btn.classList.remove("active"));
+      document.querySelectorAll(".tab-bar button")[tabNum - 1].classList.add("active");
+      if (tabNum === 4) renderRecipes();
+    }
 
-        function createNewInventory() {
-            const newInventoryName = document.getElementById('new-inventory-name').value.trim();
-            if (newInventoryName) {
-                inventories[newInventoryName] = [];
-                updateGrid2();
-            }
-        }
+    function updateGrid2() {
+      const grid = document.getElementById("inventory-grid");
+      grid.innerHTML = '';
+      for (const inventoryName in inventories) {
+        const inventoryDiv = document.createElement('div');
+        inventoryDiv.className = 'inventory-item';
+        inventoryDiv.textContent = inventoryName;
+        inventoryDiv.onclick = () => showInventory(inventoryName);
+        grid.appendChild(inventoryDiv);
+      }
+    }
 
-        function showInventory(inventoryName) {
-            currentInventory = inventoryName;
-            inventory = inventories[inventoryName];
-
-            document.querySelector('.inventory-grid-view').style.display = 'none';
-            document.querySelector('.inventory-content').style.display = 'block';
-
-            const heading = document.getElementById("current-inventory-name");
-            if (heading) {
-                heading.textContent = inventoryName;
-            }
-
-            updateInventory();
-        }
-
-        function showGrid2() {
-            document.querySelector('.inventory-grid-view').style.display = 'block';
-            document.querySelector('.inventory-content').style.display = 'none';
-        }
-
-        function addToInventory2(event) {
-            event.preventDefault();
-            const item = document.getElementById('inv-item').value.trim();
-            let quantity = document.getElementById('inv-quantity').value;
-            if (!quantity) quantity = 1;
-            addToInventory(item, quantity);
-            document.getElementById('inventory-form').reset();
-        }
-
-        function addToInventory(item, quantity) {
-            const existingItem = inventory.find(i => i.item.toLowerCase() === item.toLowerCase());
-            if (existingItem) {
-                existingItem.quantity += parseInt(quantity, 10);
-            } else {
-                inventory.push({ item, quantity: parseInt(quantity, 10) });
-            }
-            updateInventory();
-        }
-
-        function updateInventory() {
-            const list = document.getElementById('inventory');
-            list.innerHTML = '';
-
-            inventory.forEach((entry, index) => {
-                const listItem = document.createElement('li');
-                listItem.textContent = `${entry.item} (${entry.quantity})`;
-
-                const plusButton = document.createElement('button');
-                const minusButton = document.createElement('button');
-                const removeButton = document.createElement('button');
-
-                plusButton.textContent = '➕';
-                minusButton.textContent = '➖';
-                removeButton.textContent = '❌';
-
-                plusButton.onclick = () => addToInventory(entry.item, 1);
-                minusButton.onclick = () => minusFromInventory(entry.item, 1);
-                removeButton.onclick = () => removeFromInventory(index);
-
-                listItem.appendChild(plusButton);
-                listItem.appendChild(minusButton);
-                listItem.appendChild(removeButton);
-                list.appendChild(listItem);
-            });
-        }
-
-        function minusFromInventory(item, quantity) {
-            const existingItem = inventory.find(i => i.item === item);
-            if (existingItem) {
-                existingItem.quantity -= parseInt(quantity, 10);
-                if (existingItem.quantity <= 0) {
-                    const index = inventory.indexOf(existingItem);
-                    inventory.splice(index, 1);
-                }
-            }
-            updateInventory();
-        }
-
-        function removeFromInventory(index) {
-            inventory.splice(index, 1);
-            updateInventory();
-        }
-
-        const recipes = [
-            { name: "Omelette", ingredients: ["Eggs", "Milk", "Salt"] },
-            { name: "Pasta", ingredients: ["Pasta", "Tomato Sauce", "Olive Oil"] },
-            { name: "Salad", ingredients: ["Lettuce", "Tomato", "Cucumber"] }
-        ];
-
-        function getAllInventoryItems() {
-            const allItems = new Set();
-            for (const invName in inventories) {
-                inventories[invName].forEach(entry => allItems.add(entry.item.toLowerCase()));
-            }
-            return allItems;
-        }
-
-        function renderRecipes() {
-            const list = document.getElementById("recipe-list");
-            list.innerHTML = '';
-            const inventoryItems = getAllInventoryItems();
-            recipes.forEach(recipe => {
-                const li = document.createElement("li");
-                li.innerHTML = `<strong>${recipe.name}</strong>: `;
-                const hasAllIngredients = recipe.ingredients.every(
-                    ing => inventoryItems.has(ing.toLowerCase())
-                );
-                const symbol = hasAllIngredients ? "✅" : "❌";
-                li.innerHTML += symbol + " ";
-                li.title = `Needs: ${recipe.ingredients.join(', ')}`;
-                list.appendChild(li);
-            });
-        }
-
+    function createNewInventory() {
+      const name = document.getElementById('new-inventory-name').value.trim();
+      if (name) {
+        inventories[name] = [];
         updateGrid2();
-    </script>
+      }
+    }
+
+    function showInventory(name) {
+      currentInventory = name;
+      inventory = inventories[name];
+      document.querySelector('.inventory-grid-view').style.display = 'none';
+      document.querySelector('.inventory-content').style.display = 'block';
+      document.getElementById("current-inventory-name").textContent = name;
+      updateInventory();
+    }
+
+    function showGrid2() {
+      document.querySelector('.inventory-grid-view').style.display = 'block';
+      document.querySelector('.inventory-content').style.display = 'none';
+    }
+
+    function addToInventory2(event) {
+      event.preventDefault();
+      const item = document.getElementById('inv-item').value.trim();
+      let quantity = document.getElementById('inv-quantity').value;
+      if (!quantity) quantity = 1;
+      addToInventory(item, quantity);
+      document.getElementById('inventory-form').reset();
+    }
+
+    function addToInventory(item, quantity) {
+      const existingItem = inventory.find(i => i.item.toLowerCase() === item.toLowerCase());
+      if (existingItem) {
+        existingItem.quantity += parseInt(quantity, 10);
+      } else {
+        inventory.push({ item, quantity: parseInt(quantity, 10) });
+      }
+      updateInventory();
+    }
+
+    function updateInventory() {
+      const list = document.getElementById('inventory');
+      list.innerHTML = '';
+      inventory.forEach((entry, index) => {
+        const li = document.createElement('li');
+        li.textContent = `${entry.item} (${entry.quantity})`;
+        const plus = document.createElement('button'); plus.textContent = '➕'; plus.onclick = () => addToInventory(entry.item, 1);
+        const minus = document.createElement('button'); minus.textContent = '➖'; minus.onclick = () => minusFromInventory(entry.item, 1);
+        const remove = document.createElement('button'); remove.textContent = '❌'; remove.onclick = () => removeFromInventory(index);
+        li.append(plus, minus, remove);
+        list.appendChild(li);
+      });
+    }
+
+    function minusFromInventory(item, quantity) {
+      const existing = inventory.find(i => i.item === item);
+      if (existing) {
+        existing.quantity -= parseInt(quantity);
+        if (existing.quantity <= 0) inventory.splice(inventory.indexOf(existing), 1);
+      }
+      updateInventory();
+    }
+
+    function removeFromInventory(index) {
+      inventory.splice(index, 1);
+      updateInventory();
+    }
+
+    function getAllInventoryItems() {
+      const all = new Set();
+      for (const invName in inventories) inventories[invName].forEach(e => all.add(e.item.toLowerCase()));
+      return all;
+    }
+
+    function renderRecipes() {
+      const list = document.getElementById("recipe-list");
+      list.innerHTML = '';
+      const inventoryItems = getAllInventoryItems();
+      recipes.forEach((recipe, index) => {
+        const li = document.createElement("li");
+        li.innerHTML = `<strong>${recipe.name}</strong>: `;
+        const hasAll = recipe.ingredients.every(i => inventoryItems.has(i.toLowerCase()));
+        li.innerHTML += hasAll ? "✅" : "❌";
+        li.title = `Needs: ${recipe.ingredients.join(', ')}`;
+
+        const ingredientsList = document.createElement("ul");
+        recipe.ingredients.forEach(ing => {
+          const ingLi = document.createElement("li");
+          ingLi.textContent = ing;
+          ingredientsList.appendChild(ingLi);
+        });
+
+        const removeBtn = document.createElement("button");
+        removeBtn.textContent = "🗑 Remove";
+        removeBtn.onclick = () => { recipes.splice(index, 1); renderRecipes(); };
+
+        li.appendChild(ingredientsList);
+        li.appendChild(removeBtn);
+        list.appendChild(li);
+      });
+    }
+
+    function openRecipeModal() {
+      newRecipeIngredients = [];
+      document.getElementById("new-recipe-name").value = '';
+      document.getElementById("new-ingredient").value = '';
+      document.getElementById("new-ingredients-list").innerHTML = '';
+      document.getElementById("recipeModal").style.display = "block";
+    }
+
+    function closeRecipeModal() {
+      document.getElementById("recipeModal").style.display = "none";
+    }
+
+    function addIngredientToNewRecipe() {
+      const input = document.getElementById("new-ingredient");
+      const ing = input.value.trim();
+      if (ing) {
+        newRecipeIngredients.push(ing);
+        const li = document.createElement("li");
+        li.textContent = ing;
+        document.getElementById("new-ingredients-list").appendChild(li);
+        input.value = '';
+      }
+    }
+
+    function saveNewRecipe() {
+      const name = document.getElementById("new-recipe-name").value.trim();
+      if (name && newRecipeIngredients.length > 0) {
+        recipes.push({ name: name, ingredients: [...newRecipeIngredients] });
+        renderRecipes();
+        closeRecipeModal();
+      } else {
+        alert("Please provide a name and at least one ingredient.");
+      }
+    }
+
+    function updateShoppingList() {
+      const listElem = document.getElementById("shopping-list-items");
+      listElem.innerHTML = "";
+      shoppingList.forEach((item, index) => {
+        const li = document.createElement("li");
+        const span = document.createElement("span");
+        span.textContent = item;
+        const controls = document.createElement("span");
+        controls.className = "item-controls";
+
+        const editBtn = document.createElement("button");
+        editBtn.textContent = "Edit";
+        editBtn.onclick = function(e) {
+          e.stopPropagation();
+          editItem(index);
+        };
+
+        const removeBtn = document.createElement("button");
+        removeBtn.textContent = "Remove";
+        removeBtn.onclick = function(e) {
+          e.stopPropagation();
+          removeItem(index);
+        };
+
+        controls.append(editBtn, removeBtn);
+        li.append(span, controls);
+        listElem.appendChild(li);
+      });
+    }
+
+    function addItem() {
+      const newItem = prompt("Enter new item:");
+      if (newItem) {
+        shoppingList.push(newItem.trim());
+        updateShoppingList();
+      }
+    }
+
+    function removeItem(index) {
+      if (index >= 0 && index < shoppingList.length && confirm("Remove item: " + shoppingList[index] + "?")) {
+        shoppingList.splice(index, 1);
+        updateShoppingList();
+      }
+    }
+
+    function editItem(index) {
+      if (index >= 0 && index < shoppingList.length) {
+        const newItem = prompt("Edit item:", shoppingList[index]);
+        if (newItem) {
+          shoppingList[index] = newItem.trim();
+          updateShoppingList();
+        }
+      }
+    }
+
+    updateGrid2();
+    updateShoppingList();
+  </script>
 </body>
 </html>
