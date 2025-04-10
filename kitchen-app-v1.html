@@ -48,6 +48,7 @@
                 <!-- SHOPPING LIST TAB -->
                 <div class="tab-content" id="tab3">
                     <h2 class="tab-title">Shopping Lists</h2>
+
                     <!-- Shopping List UI unchanged -->
 
                     <div style="display: block;" class="shopping-lists-grid-view" if="shopping-lists-grid-view">
@@ -74,7 +75,7 @@
                             <ul id="shopping-list"></ul>
                         </div>
                     </div>
-                </div>
+
 
                 <!-- RECIPES TAB -->
                 <div class="tab-content" id="tab4">
@@ -225,6 +226,7 @@
             updateInventory();
         }
 
+
         const shoppingLists = {'List 1':[]};
 
         let currentList = 'List 1';
@@ -314,6 +316,7 @@
 
         updateGrid();   
 
+
         const recipes = [
             { name: "Omelette", ingredients: ["Eggs", "Milk", "Salt"] },
             { name: "Pasta", ingredients: ["Pasta", "Tomato Sauce", "Olive Oil"] },
@@ -344,8 +347,10 @@
                 list.appendChild(li);
             });
         }
-        updateGrid();
+
+
         updateGrid2();
     </script>
+
 </body>
 </html>
