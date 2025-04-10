@@ -48,6 +48,17 @@
                 <!-- SHOPPING LIST TAB -->
                 <div class="tab-content" id="tab3">
                     <h2 class="tab-title">Shopping Lists</h2>
+                    <div class="shopping-list-buttons">
+                        <button id="addItemButton" onclick="addItem()">Add</button>
+                    </div>
+
+                    <div id="shopping-list-box" class="shopping-list-box">
+                        <h3>Items Needed:</h3>
+                        <ul id="shopping-list-items">
+                          <!-- Dynamic shopping list items will be appended here -->
+                          
+                        </ul>
+                      </div>
                     <!-- Shopping List UI unchanged -->
                 </div>
 
@@ -232,6 +243,91 @@
         }
 
         updateGrid2();
+
+        
     </script>
+
+<script>
+    // Global shopping list data.
+    var shoppingList = ["Milk", "Bread", "Eggs"];
+  
+    // Function to update the shopping list display box.
+    function updateShoppingList() {
+      const listElem = document.getElementById("shopping-list-items");
+      listElem.innerHTML = "";
+      shoppingList.forEach((item, index) => {
+        const li = document.createElement("li");
+
+        // Create a span to hold the item text.
+        const itemSpan = document.createElement("span");
+        itemSpan.textContent = item;
+        li.appendChild(itemSpan);
+
+        // Create a container for inline buttons.
+        const controls = document.createElement("span");
+        controls.className = "item-controls";
+
+        // Create the inline Edit button.
+        const editBtn = document.createElement("button");
+        editBtn.textContent = "Edit";
+        editBtn.onclick = function(event) {
+          event.stopPropagation();
+          editItem(index);
+        };
+
+        // Create the inline Remove button.
+        const removeBtn = document.createElement("button");
+        removeBtn.textContent = "Remove";
+        removeBtn.onclick = function(event) {
+          event.stopPropagation();
+          removeItem(index);
+        };
+
+        controls.appendChild(editBtn);
+        controls.appendChild(removeBtn);
+        li.appendChild(controls);
+
+        listElem.appendChild(li);
+      });
+    }
+  
+    // Function to add a new item to the shopping list.
+    function addItem() {
+      let newItem = prompt("Enter new item:");
+      if (newItem) {
+        shoppingList.push(newItem.trim());
+        updateShoppingList();
+      }
+    }
+  
+    // Function to remove the shopping list item at a given index.
+    function removeItem(index) {
+      if (index < 0 || index >= shoppingList.length) {
+        alert("Invalid selection.");
+        return;
+      }
+      if (confirm("Remove item: " + shoppingList[index] + "?")) {
+        shoppingList.splice(index, 1);
+        updateShoppingList();
+      }
+    }
+  
+    // Function to edit the shopping list item at a given index.
+    function editItem(index) {
+      if (index < 0 || index >= shoppingList.length) {
+        alert("Invalid selection.");
+        return;
+      }
+      let newItem = prompt("Edit item:", shoppingList[index]);
+      if (newItem) {
+        shoppingList[index] = newItem.trim();
+        updateShoppingList();
+      }
+    }
+  
+    // Initialize the shopping list display.
+    updateShoppingList();
+  </script>
+  
 </body>
 </html>
