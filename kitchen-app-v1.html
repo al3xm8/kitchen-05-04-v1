@@ -48,19 +48,34 @@
                 <!-- SHOPPING LIST TAB -->
                 <div class="tab-content" id="tab3">
                     <h2 class="tab-title">Shopping Lists</h2>
-                    <div class="shopping-list-buttons">
-                        <button id="addItemButton" onclick="addItem()">Add</button>
+
+                    <!-- Shopping List UI unchanged -->
+
+                    <div style="display: block;" class="shopping-lists-grid-view" if="shopping-lists-grid-view">
+                        <div class="new-list">  
+                            <input type="text" id="new-list-name" placeholder="New List Name" required>
+                            <button class="new-list-button" onclick="createNewList()">➕</button>
+                        </div>
+
+                        <div class="shopping-lists-grid" id="shopping-lists-grid"></div>
+
                     </div>
 
-                    <div id="shopping-list-box" class="shopping-list-box">
-                        <h3>Items Needed:</h3>
-                        <ul id="shopping-list-items">
-                          <!-- Dynamic shopping list items will be appended here -->
-                          
-                        </ul>
-                      </div>
-                    <!-- Shopping List UI unchanged -->
-                </div>
+                    <div style="display: none;" class="shopping-list-content">
+                        <button class="back-grid" onclick="showGrid()">⬅</button>
+                        <form class="shopping-list-form" id="shopping-list-form" onsubmit="addItem(event)">
+                            <div class="input-group">
+                                <input type="text" id="item" placeholder="Item" required>
+                                <input type="number" id="quantity" placeholder="Quantity" min="1" >
+                                <button type="submit">➕</button>
+                            </div>
+                        </form>
+                        <div class="inventory-items-container">
+                            <h4>Items in this shopping list:</h4>
+                            <ul id="shopping-list"></ul>
+                        </div>
+                    </div>
+
 
                 <!-- RECIPES TAB -->
                 <div class="tab-content" id="tab4">
@@ -211,6 +226,97 @@
             updateInventory();
         }
 
+
+        const shoppingLists = {'List 1':[]};
+
+        let currentList = 'List 1';
+
+        function updateGrid() {
+            const grid = document.getElementById("shopping-lists-grid");
+            grid.innerHTML = '';
+
+            for (const listName in shoppingLists) {
+                const list = document.createElement('div');
+                list.className = 'shopping-list';
+                list.textContent = listName;
+
+                list.onclick = () => showList(listName);
+                grid.appendChild(list);
+            }
+
+        }
+
+        function createNewList() {
+            const newListName = document.getElementById('new-list-name').value.trim();
+            if (newListName) {
+                shoppingLists[newListName] = [];
+                updateGrid();
+            }
+        }
+
+        function showList(listName) {
+            shoppingList = shoppingLists[listName];
+            document.querySelector('.shopping-lists-grid-view').style.display = 'none';
+            document.querySelector('.shopping-list-content').style.display = 'block';
+            updateShoppingList();
+        }
+        
+        function showGrid() {
+            document.querySelector('.shopping-lists-grid-view').style.display = 'block';
+            document.querySelector('.shopping-list-content').style.display = 'none';
+        }
+        function updateShoppingList() {
+            const list = document.getElementById('shopping-list');
+            list.innerHTML = '';
+
+            shoppingList.forEach((entry, index) => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${entry.item} (${entry.quantity})`;
+
+                const removeButton = document.createElement('button');
+                const addButton = document.createElement('button');
+                
+                addButton.textContent = '✔ Add to Inventory';
+                addButton.style.color = 'green';
+                removeButton.textContent = '❌';
+
+                addButton.onclick = () => addToInventory(entry.item, entry.quantity);
+                removeButton.onclick = () => removeItem(index);
+                
+                listItem.appendChild(addButton);
+                listItem.appendChild(removeButton);
+                
+                list.appendChild(listItem);
+            });
+        }
+
+        function addItem(event) {
+            event.preventDefault();
+            const item = document.getElementById('item').value;
+            let quantity = document.getElementById('quantity').value;
+
+            if (!quantity) {
+                quantity = 1;
+            }
+
+            shoppingList.push({ item, quantity });
+            updateShoppingList();
+
+            //const listItem = document.createElement('li');
+            //listItem.textContent = `${item} (${quantity})`;
+
+            //document.getElementById('shopping-list').appendChild(listItem);
+            document.getElementById('shopping-list-form').reset();
+        }
+
+        function removeItem(index) {
+            shoppingList.splice(index, 1);
+            updateShoppingList();
+        }
+
+        updateGrid();   
+
+
         const recipes = [
             { name: "Omelette", ingredients: ["Eggs", "Milk", "Salt"] },
             { name: "Pasta", ingredients: ["Pasta", "Tomato Sauce", "Olive Oil"] },
@@ -242,92 +348,9 @@
             });
         }
 
-        updateGrid2();
 
-        
+        updateGrid2();
     </script>
 
-<script>
-    // Global shopping list data.
-    var shoppingList = ["Milk", "Bread", "Eggs"];
-  
-    // Function to update the shopping list display box.
-    function updateShoppingList() {
-      const listElem = document.getElementById("shopping-list-items");
-      listElem.innerHTML = "";
-      shoppingList.forEach((item, index) => {
-        const li = document.createElement("li");
-
-        // Create a span to hold the item text.
-        const itemSpan = document.createElement("span");
-        itemSpan.textContent = item;
-        li.appendChild(itemSpan);
-
-        // Create a container for inline buttons.
-        const controls = document.createElement("span");
-        controls.className = "item-controls";
-
-        // Create the inline Edit button.
-        const editBtn = document.createElement("button");
-        editBtn.textContent = "Edit";
-        editBtn.onclick = function(event) {
-          event.stopPropagation();
-          editItem(index);
-        };
-
-        // Create the inline Remove button.
-        const removeBtn = document.createElement("button");
-        removeBtn.textContent = "Remove";
-        removeBtn.onclick = function(event) {
-          event.stopPropagation();
-          removeItem(index);
-        };
-
-        controls.appendChild(editBtn);
-        controls.appendChild(removeBtn);
-        li.appendChild(controls);
-
-        listElem.appendChild(li);
-      });
-    }
-  
-    // Function to add a new item to the shopping list.
-    function addItem() {
-      let newItem = prompt("Enter new item:");
-      if (newItem) {
-        shoppingList.push(newItem.trim());
-        updateShoppingList();
-      }
-    }
-  
-    // Function to remove the shopping list item at a given index.
-    function removeItem(index) {
-      if (index < 0 || index >= shoppingList.length) {
-        alert("Invalid selection.");
-        return;
-      }
-      if (confirm("Remove item: " + shoppingList[index] + "?")) {
-        shoppingList.splice(index, 1);
-        updateShoppingList();
-      }
-    }
-  
-    // Function to edit the shopping list item at a given index.
-    function editItem(index) {
-      if (index < 0 || index >= shoppingList.length) {
-        alert("Invalid selection.");
-        return;
-      }
-      let newItem = prompt("Edit item:", shoppingList[index]);
-      if (newItem) {
-        shoppingList[index] = newItem.trim();
-        updateShoppingList();
-      }
-    }
-  
-    // Initialize the shopping list display.
-    updateShoppingList();
-  </script>
-  
 </body>
 </html>
