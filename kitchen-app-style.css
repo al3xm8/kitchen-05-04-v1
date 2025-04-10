@@ -131,3 +131,35 @@
     background-color: rgb(221, 221, 221);;
     cursor: pointer;
 }
+
+.inventory-items-container {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 12px;
+    margin-top: 16px;
+    background-color: #f9f9f9;
+}
+
+.inventory-items-container h4 {
+    margin-top: 0;
+    font-size: 16px;
+    text-align: center;
+    color: #333;
+}
+
+#inventory {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+#inventory li {
+    padding: 6px 8px;
+    margin-bottom: 8px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
