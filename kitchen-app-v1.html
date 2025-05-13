@@ -14,36 +14,26 @@
         <!-- HOME TAB -->
         <div class="tab-content active" id="tab1">
           <h2 class="tab-title">Home</h2>
-          
-          <!-- Quick Actions -->
           <div class="quick-actions">
             <button onclick="showTab(2)">➕ Add to Inventory</button>
             <button onclick="showTab(3)">📝 Add to Shopping List</button>
             <button onclick="showTab(4)">🔍 Find Recipe</button>
           </div>
-
-          <!-- Expiring Items Section -->
           <div class="home-section">
             <h3>⚠️ Items Expiring Soon</h3>
-            <div class="expiring-items" id="expiring-items"></div>
+            <div id="expiring-items" class="expiring-items"></div>
           </div>
-
-          <!-- Low Inventory Section -->
           <div class="home-section">
             <h3>📉 Low Inventory</h3>
-            <div class="low-inventory" id="low-inventory"></div>
+            <div id="low-inventory" class="low-inventory"></div>
           </div>
-
-          <!-- Recipe Suggestions -->
           <div class="home-section">
             <h3>👨‍🍳 Suggested Recipes</h3>
-            <div class="recipe-suggestions" id="recipe-suggestions"></div>
+            <div id="recipe-suggestions" class="recipe-suggestions"></div>
           </div>
-
-          <!-- Quick Inventory Overview -->
           <div class="home-section">
             <h3>📦 Inventory Overview</h3>
-            <div class="inventory-overview" id="inventory-overview"></div>
+            <div id="inventory-overview" class="inventory-overview"></div>
           </div>
         </div>
 
@@ -55,7 +45,7 @@
               <input type="text" id="new-inventory-name" placeholder="New Inventory Name" required />
               <button onclick="createNewInventory()">➕</button>
             </div>
-            <div class="inventory-grid" id="inventory-grid"></div>
+            <div id="inventory-grid" class="inventory-grid"></div>
           </div>
           <div class="inventory-content" style="display: none;">
             <button onclick="showGrid2()">⬅</button>
@@ -74,7 +64,7 @@
                 <option value="ml">Milliliters</option>
                 <option value="slices">Slices</option>
               </select>
-              <input type="date" id="inv-expiry" placeholder="Expiration Date" />
+              <input type="date" id="inv-expiry" />
               <button type="submit">➕</button>
             </form>
             <div class="inventory-items-container">
@@ -86,7 +76,7 @@
 
         <!-- SHOPPING LIST TAB -->
         <div class="tab-content" id="tab3">
-          <h2 class="tab-title">Shopping Lists</h2>
+          <h2 class="tab-title">Shopping List</h2>
           <button class="add-item-btn" onclick="showAddItemForm()">➕ Add Item</button>
           <div class="shopping-list-box">
             <h3>Items Needed:</h3>
@@ -107,7 +97,50 @@
 
         <!-- PROFILE TAB -->
         <div class="tab-content" id="tab5">
-          <h2 class="tab-title">Profile</h2>
+          <!-- View Mode -->
+          <div id="profile-view" class="profile-container">
+            <div class="profile-header">
+              <h2 class="profile-title">Profile</h2>
+            </div>
+            <div class="profile-main">
+              <img src="profile_icon.png"
+                   alt="Profile Icon" class="profile-icon">
+              <div class="profile-fields">
+                <div><strong>Name:</strong> <span id="profile-name"></span></div>
+                <div><strong>Email:</strong> <span id="profile-email"></span></div>
+                <div><strong>Shopping Streak:</strong> <span id="profile-streak"></span></div>
+              </div>
+            </div>
+            <button class="profile-edit-btn" onclick="toggleEdit(true)">Edit Profile</button>
+          </div>
+          <!-- Edit Mode -->
+          <div id="profile-edit" class="profile-container" style="display:none;">
+            <div class="profile-header">
+              <h2 class="profile-title">Profile</h2>
+            </div>
+            <div class="profile-main">
+              <img src="profile_icon.png"
+                   alt="Profile Icon" class="profile-icon">
+              <div class="profile-fields">
+                <div class="profile-field">
+                  <label for="edit-first-name">First Name:</label>
+                  <input id="edit-first-name" type="text">
+                </div>
+                <div class="profile-field">
+                  <label for="edit-last-name">Last Name:</label>
+                  <input id="edit-last-name" type="text">
+                </div>
+                <div class="profile-field">
+                  <label for="edit-email">Email:</label>
+                  <input id="edit-email" type="email">
+                </div>
+              </div>
+            </div>
+            <div class="edit-buttons">
+              <button onclick="saveProfile()">Save</button>
+              <button onclick="toggleEdit(false)">Cancel</button>
+            </div>
+          </div>
         </div>
 
         <!-- TAB BAR -->
@@ -122,13 +155,13 @@
         <!-- Recipe Modal -->
         <div id="recipeModal" class="modal">
           <div class="modal-content">
-            <h3>Add New Recipe</h3>
-            <input type="text" id="new-recipe-name" placeholder="Recipe Name">
-            <textarea id="new-recipe-instructions" placeholder="Enter recipe instructions"></textarea>
-            <input type="text" id="new-ingredient" placeholder="Enter ingredient (e.g., '2 cups flour')">
+            <h3>Add / Edit Recipe</h3>
+            <input id="new-recipe-name" type="text" placeholder="Recipe Name" />
+            <textarea id="new-recipe-instructions" placeholder="Instructions"></textarea>
+            <input id="new-ingredient" type="text" placeholder="e.g. '2 cups flour'" />
             <button onclick="addIngredientToNewRecipe()">Add Ingredient</button>
             <ul id="new-ingredients-list"></ul>
-            <button onclick="saveNewRecipe()">Done</button>
+            <button onclick="saveNewRecipe()">Save</button>
             <button onclick="closeRecipeModal()">Cancel</button>
           </div>
         </div>
@@ -136,799 +169,481 @@
         <!-- Inventory Modal -->
         <div id="inventoryModal" class="modal">
           <div class="modal-content">
-            <p>Select inventory to move item into:</p>
+            <p>Select inventory to move into:</p>
             <div id="inventory-buttons"></div>
             <button onclick="closeInventoryModal()">Cancel</button>
           </div>
         </div>
 
-        <!-- Confirmation Modal -->
+        <!-- Confirm Modal -->
         <div id="confirmModal" class="modal">
           <div class="modal-content">
-            <h3 id="confirmTitle">Confirm Action</h3>
+            <h3 id="confirmTitle"></h3>
             <p id="confirmMessage"></p>
             <div class="confirm-buttons">
-              <button onclick="handleConfirmAction()" id="confirmYes">Yes</button>
+              <button id="confirmYes" onclick="handleConfirmAction()">Yes</button>
               <button onclick="closeConfirmModal()">No</button>
             </div>
           </div>
         </div>
+
       </div>
     </div>
   </div>
 
   <script>
+    // ——— Data & Profile ———
     const shoppingList = [
-      { name: "Milk", quantity: 1, measure: "quantity" },
-      { name: "Bread", quantity: 2, measure: "slices" },
-      { name: "Eggs", quantity: 12, measure: "quantity" }
+      { name:"Milk", quantity:1,  measure:"quantity" },
+      { name:"Bread",quantity:2,  measure:"slices"   },
+      { name:"Eggs", quantity:12, measure:"quantity" }
     ];
     const recipes = [
-      { 
-        name: "Omelette", 
-        ingredients: [
-          { name: "Eggs", quantity: 2, unit: "whole" },
-          { name: "Milk", quantity: 2, unit: "tbsp" },
-          { name: "Salt", quantity: 0.25, unit: "tsp" }
+      { name:"Omelette",
+        ingredients:[
+          {name:"Eggs", quantity:2, unit:"whole"},
+          {name:"Milk", quantity:2, unit:"tbsp"},
+          {name:"Salt", quantity:0.25, unit:"tsp"}
         ],
-        instructions: "1. Whisk eggs with milk and salt\n2. Heat pan with butter\n3. Pour mixture and cook until set\n4. Fold and serve"
+        instructions:
+          "1. Whisk eggs with milk and salt\n" +
+          "2. Heat pan with butter\n" +
+          "3. Pour mixture and cook until set\n" +
+          "4. Fold and serve"
       },
-      { 
-        name: "Pasta", 
-        ingredients: [
-          { name: "Pasta", quantity: 8, unit: "oz" },
-          { name: "Tomato Sauce", quantity: 1, unit: "cup" },
-          { name: "Olive Oil", quantity: 2, unit: "tbsp" }
+      { name:"Pasta",
+        ingredients:[
+          {name:"Pasta", quantity:8, unit:"oz"},
+          {name:"Tomato Sauce", quantity:1, unit:"cup"},
+          {name:"Olive Oil", quantity:2, unit:"tbsp"}
         ],
-        instructions: "1. Boil pasta according to package\n2. Heat sauce in separate pan\n3. Drain pasta and mix with sauce\n4. Drizzle with olive oil"
+        instructions:
+          "1. Boil pasta according to package\n" +
+          "2. Heat sauce in separate pan\n" +
+          "3. Drain pasta and mix with sauce\n" +
+          "4. Drizzle with olive oil"
       },
-      { 
-        name: "Salad", 
-        ingredients: [
-          { name: "Lettuce", quantity: 1, unit: "head" },
-          { name: "Tomato", quantity: 2, unit: "whole" },
-          { name: "Cucumber", quantity: 1, unit: "whole" }
+      { name:"Salad",
+        ingredients:[
+          {name:"Lettuce", quantity:1, unit:"head"},
+          {name:"Tomato", quantity:2, unit:"whole"},
+          {name:"Cucumber", quantity:1, unit:"whole"}
         ],
-        instructions: "1. Wash and chop vegetables\n2. Combine in large bowl\n3. Add dressing of choice\n4. Toss and serve"
+        instructions:
+          "1. Wash and chop vegetables\n" +
+          "2. Combine in bowl\n" +
+          "3. Add dressing\n" +
+          "4. Toss and serve"
       }
     ];
     let newRecipeIngredients = [];
     const inventories = { Fridge: [] };
-    let currentInventory = 'Fridge';
-    let inventory = inventories[currentInventory];
-    let confirmCallback = null;
-    let confirmData = null;
+    let currentInventory = "Fridge";
 
+    let userProfile = {
+      firstName:"John",
+      lastName:"Doe",
+      email:"john.doe@example.com",
+      streak:0
+    };
+
+    // ——— Tab switching ———
     function showTab(tabNum) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.getElementById('tab' + tabNum).classList.add('active');
+      document.getElementById('tab'+tabNum).classList.add('active');
       document.querySelectorAll('.tab-bar button').forEach(btn => btn.classList.remove('active'));
-      document.querySelectorAll('.tab-bar button')[tabNum - 1].classList.add('active');
-      if (tabNum === 1) {
-        updateHomePage();
-      }
+      document.querySelectorAll('.tab-bar button')[tabNum-1].classList.add('active');
+
+      if (tabNum === 1) updateHomePage();
       if (tabNum === 4) renderRecipes();
+      if (tabNum === 5) loadProfile();
+}
+
+    // ——— Profile ———
+    function loadProfile() {
+      document.getElementById('profile-name').textContent =
+        userProfile.firstName + " " + userProfile.lastName;
+      document.getElementById('profile-email').textContent =
+        userProfile.email;
+      document.getElementById('profile-streak').textContent =
+        userProfile.streak;
+      document.getElementById('edit-first-name').value =
+        userProfile.firstName;
+      document.getElementById('edit-last-name').value =
+        userProfile.lastName;
+      document.getElementById('edit-email').value =
+        userProfile.email;
+    }
+    function toggleEdit(on) {
+      document.getElementById('profile-view').style.display = on ? 'none':'block';
+      document.getElementById('profile-edit').style.display = on ? 'block':'none';
+    }
+    function saveProfile() {
+      userProfile.firstName = document.getElementById('edit-first-name').value.trim();
+      userProfile.lastName  = document.getElementById('edit-last-name').value.trim();
+      userProfile.email     = document.getElementById('edit-email').value.trim();
+      loadProfile();
+      toggleEdit(false);
     }
 
+    // ——— Inventory ———
     function updateGrid2() {
       const grid = document.getElementById('inventory-grid');
-      grid.innerHTML = '';
-      for (const name in inventories) {
-        const div = document.createElement('div');
-        div.className = 'inventory-item';
-        div.textContent = name;
-        div.onclick = () => showInventory(name);
-        grid.appendChild(div);
+      grid.innerHTML="";
+      for(const name in inventories) {
+        const d=document.createElement('div');
+        d.className='inventory-item';
+        d.textContent=name;
+        d.onclick=()=>showInventory(name);
+        grid.appendChild(d);
       }
     }
-
     function createNewInventory() {
-      const name = document.getElementById('new-inventory-name').value.trim();
-      if (name && !inventories[name]) {
-        inventories[name] = [];
+      const name=document.getElementById('new-inventory-name').value.trim();
+      if(name && !inventories[name]) {
+        inventories[name]=[];
         updateGrid2();
       }
     }
-
     function showInventory(name) {
-      currentInventory = name;
-      inventory = inventories[name];
-      document.querySelector('.inventory-grid-view').style.display = 'none';
-      document.querySelector('.inventory-content').style.display = 'block';
-      document.getElementById('current-inventory-name').textContent = name;
+      currentInventory=name;
+      document.querySelector('.inventory-grid-view').style.display='none';
+      document.querySelector('.inventory-content').style.display='block';
+      document.getElementById('current-inventory-name').textContent=name;
       updateInventory();
     }
-
     function showGrid2() {
-      document.querySelector('.inventory-grid-view').style.display = 'block';
-      document.querySelector('.inventory-content').style.display = 'none';
+      document.querySelector('.inventory-grid-view').style.display='block';
+      document.querySelector('.inventory-content').style.display='none';
     }
-
-    function addToInventory2(event) {
-      event.preventDefault();
-      const item = document.getElementById('inv-item').value.trim();
-      let quantity = parseFloat(document.getElementById('inv-quantity').value || '1');
-      const measure = document.getElementById('inv-measure').value;
-      const expiry = document.getElementById('inv-expiry').value;
-      const existing = inventory.find(i => i.item.toLowerCase() === item.toLowerCase() && i.measure === measure);
-      if (existing) existing.quantity += quantity;
-      else inventory.push({ item, quantity, measure, expiry });
+    function addToInventory2(e) {
+      e.preventDefault();
+      const item=document.getElementById('inv-item').value.trim();
+      const qty=parseFloat(document.getElementById('inv-quantity').value)||1;
+      const m=document.getElementById('inv-measure').value;
+      const exp=document.getElementById('inv-expiry').value;
+      const inv=inventories[currentInventory];
+      const ex=inv.find(x=>x.item.toLowerCase()===item.toLowerCase()&&x.measure===m);
+      if(ex) ex.quantity+=qty; else inv.push({item,quantity:qty,measure:m,expiry:exp});
       updateInventory();
       updateCurrentItemsList();
       document.getElementById('inventory-form').reset();
     }
-
     function updateInventory() {
-      const list = document.getElementById('inventory');
-      if (!list) return; // Guard against null if not on inventory tab
-      
-      list.innerHTML = '';
-      if (!inventory) return; // Guard against null inventory
-      
-      inventory.forEach((entry, index) => {
-        const li = document.createElement('li');
-        const measureText = entry.measure === 'quantity' ? '' : ` ${entry.measure}`;
-        
-        // Create item display
-        const itemDisplay = document.createElement('div');
-        itemDisplay.className = 'item-display';
-        itemDisplay.innerHTML = `
-          <span class="item-name">${entry.item}</span>
-          <span class="item-quantity">(${entry.quantity}${measureText})</span>
-        `;
-        
-        // Create edit form (hidden by default)
-        const editForm = document.createElement('div');
-        editForm.className = 'edit-form';
-        editForm.style.display = 'none';
-        editForm.innerHTML = `
-          <input type="text" class="edit-name" value="${entry.item}" placeholder="Item name" />
-          <input type="number" class="edit-quantity" value="${entry.quantity}" min="0.1" step="0.1" placeholder="Quantity" />
-          <select class="edit-measure">
-            <option value="quantity" ${entry.measure === 'quantity' ? 'selected' : ''}>Quantity</option>
-            <option value="cups" ${entry.measure === 'cups' ? 'selected' : ''}>Cups</option>
-            <option value="tbsp" ${entry.measure === 'tbsp' ? 'selected' : ''}>Tablespoons</option>
-            <option value="tsp" ${entry.measure === 'tsp' ? 'selected' : ''}>Teaspoons</option>
-            <option value="oz" ${entry.measure === 'oz' ? 'selected' : ''}>Ounces</option>
-            <option value="lbs" ${entry.measure === 'lbs' ? 'selected' : ''}>Pounds</option>
-            <option value="g" ${entry.measure === 'g' ? 'selected' : ''}>Grams</option>
-            <option value="ml" ${entry.measure === 'ml' ? 'selected' : ''}>Milliliters</option>
-            <option value="slices" ${entry.measure === 'slices' ? 'selected' : ''}>Slices</option>
-          </select>
-          <button class="save-edit">Save</button>
-          <button class="cancel-edit">Cancel</button>
-        `;
-        
-        // Create controls container
-        const controls = document.createElement('div');
-        controls.className = 'item-controls';
-        
-        // Edit button
-        const editBtn = document.createElement('button');
-        editBtn.textContent = '✏️';
-        editBtn.onclick = () => {
-          itemDisplay.style.display = 'none';
-          editForm.style.display = 'flex';
-          controls.style.display = 'none';
-        };
-        
-        // Consume button
-        const consumeBtn = document.createElement('button');
-        consumeBtn.textContent = '🍽️';
-        consumeBtn.onclick = () => {
-          itemDisplay.style.display = 'none';
-          consumeForm.style.display = 'flex';
-          controls.style.display = 'none';
-        };
-        
-        // Remove button
-        const removeBtn = document.createElement('button');
-        removeBtn.textContent = '🗑️';
-        removeBtn.onclick = () => {
-          inventory.splice(index, 1);
-          updateInventory();
-          updateCurrentItemsList();
-        };
-        
-        controls.append(editBtn, consumeBtn, removeBtn);
-        li.append(itemDisplay, editForm, controls);
-        list.appendChild(li);
-      });
-    }
-
-    function updateCurrentItemsList() {
-      const list = document.getElementById("current-items-list");
-      list.innerHTML = "";
-      for (const invName in inventories) {
-        inventories[invName].forEach(entry => {
-          const li = document.createElement("li");
-          const measureText = entry.measure === 'quantity' ? '' : ` ${entry.measure}`;
-          const expiryText = entry.expiry ? ` - Expires: ${new Date(entry.expiry).toLocaleDateString()}` : '';
-          li.textContent = `${entry.item} (${entry.quantity}${measureText})${expiryText} - ${invName}`;
-          
-          // Add expiry status class if item has expiry date
-          if (entry.expiry) {
-            const today = new Date();
-            const expiryDate = new Date(entry.expiry);
-            const daysUntilExpiry = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
-            
-            if (daysUntilExpiry < 0) {
-              li.classList.add('expired');
-            } else if (daysUntilExpiry <= 3) {
-              li.classList.add('expiring-soon');
-            }
-          }
-          
-          list.appendChild(li);
-        });
-      }
-    }
-
-    function updateShoppingList() {
-      const ul = document.getElementById("shopping-list-items");
-      ul.innerHTML = "";
-      shoppingList.forEach((item, index) => {
-        const li = document.createElement("li");
-        
-        // Create checkbox
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.className = 'item-checkbox';
-        checkbox.onchange = () => updatePurchaseButton();
-        
-        // Create item display
-        const itemDisplay = document.createElement('div');
-        itemDisplay.className = 'item-display';
-        const measureText = item.measure === 'quantity' ? '' : ` ${item.measure}`;
-        itemDisplay.innerHTML = `
-          <span class="item-name">${item.name}</span>
-          <span class="item-quantity">(${item.quantity}${measureText})</span>
-        `;
-        
-        // Create edit form (hidden by default)
-        const editForm = document.createElement('div');
-        editForm.className = 'edit-form';
-        editForm.style.display = 'none';
-        editForm.innerHTML = `
-          <input type="text" class="edit-name" value="${item.name}" placeholder="Item name" />
-          <input type="number" class="edit-quantity" value="${item.quantity}" min="0.1" step="0.1" placeholder="Quantity" />
-          <select class="edit-measure">
-            <option value="quantity" ${item.measure === 'quantity' ? 'selected' : ''}>Quantity</option>
-            <option value="cups" ${item.measure === 'cups' ? 'selected' : ''}>Cups</option>
-            <option value="tbsp" ${item.measure === 'tbsp' ? 'selected' : ''}>Tablespoons</option>
-            <option value="tsp" ${item.measure === 'tsp' ? 'selected' : ''}>Teaspoons</option>
-            <option value="oz" ${item.measure === 'oz' ? 'selected' : ''}>Ounces</option>
-            <option value="lbs" ${item.measure === 'lbs' ? 'selected' : ''}>Pounds</option>
-            <option value="g" ${item.measure === 'g' ? 'selected' : ''}>Grams</option>
-            <option value="ml" ${item.measure === 'ml' ? 'selected' : ''}>Milliliters</option>
-            <option value="slices" ${item.measure === 'slices' ? 'selected' : ''}>Slices</option>
-          </select>
-          <button class="save-edit">Save</button>
-          <button class="cancel-edit">Cancel</button>
-        `;
-        
-        // Create controls container
-        const controls = document.createElement('div');
-        controls.className = 'item-controls';
-        
-        // Edit button
-        const editBtn = document.createElement('button');
-        editBtn.textContent = '✏️';
-        editBtn.onclick = () => {
-          itemDisplay.style.display = 'none';
-          editForm.style.display = 'flex';
-          controls.style.display = 'none';
-        };
-        
-        // Remove button
-        const removeBtn = document.createElement('button');
-        removeBtn.textContent = '🗑️';
-        removeBtn.onclick = () => {
-          shoppingList.splice(index, 1);
-          updateShoppingList();
-        };
-        
-        // Add event listeners for edit form
-        editForm.querySelector('.save-edit').onclick = () => {
-          const newName = editForm.querySelector('.edit-name').value.trim();
-          const newQuantity = parseFloat(editForm.querySelector('.edit-quantity').value) || 0.1;
-          const newMeasure = editForm.querySelector('.edit-measure').value;
-          if (newName && newQuantity > 0) {
-            shoppingList[index] = {
-              name: newName,
-              quantity: newQuantity,
-              measure: newMeasure
-            };
-            updateShoppingList();
-          }
-        };
-        
-        editForm.querySelector('.cancel-edit').onclick = () => {
-          itemDisplay.style.display = 'flex';
-          editForm.style.display = 'none';
-          controls.style.display = 'flex';
-        };
-        
-        controls.append(editBtn, removeBtn);
-        li.append(checkbox, itemDisplay, editForm, controls);
+      const ul=document.getElementById('inventory');
+      ul.innerHTML='';
+      inventories[currentInventory].forEach((e,i)=>{
+        const li=document.createElement('li');
+        const mTxt=e.measure==='quantity'?'':` ${e.measure}`;
+        li.innerHTML=
+          `<div class="item-display">
+             <span class="item-name">${e.item}</span>
+             <span class="item-quantity">(${e.quantity}${mTxt})</span>
+           </div>
+           <div class="item-controls">
+             <button onclick="inventories['${currentInventory}'].splice(${i},1);
+                              updateInventory(); updateCurrentItemsList();">🗑️</button>
+           </div>`;
         ul.appendChild(li);
       });
     }
-
-    function updatePurchaseButton() {
-      const checkedItems = document.querySelectorAll('.item-checkbox:checked');
-      const purchaseBtn = document.querySelector('.purchase-btn');
-      purchaseBtn.disabled = checkedItems.length === 0;
-    }
-
-    function handlePurchasedItems() {
-      const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
-      const itemsToMove = [];
-      
-      // Collect checked items
-      checkedBoxes.forEach(checkbox => {
-        const li = checkbox.closest('li');
-        const index = Array.from(li.parentNode.children).indexOf(li);
-        itemsToMove.push(shoppingList[index]);
-      });
-      
-      // Create inventory selection modal
-      const modal = document.getElementById("inventoryModal");
-      const container = document.getElementById("inventory-buttons");
-      container.innerHTML = "";
-      
-      // Add inventory selection buttons
-      for (const name in inventories) {
-        const btn = document.createElement("button");
-        btn.textContent = name;
-        btn.onclick = () => {
-          // Move items to selected inventory
-          itemsToMove.forEach(item => {
-            // Check if item already exists in inventory
-            const existingItem = inventories[name].find(i => 
-              i.item.toLowerCase() === item.name.toLowerCase() && 
-              i.measure === item.measure
-            );
-            
-            if (existingItem) {
-              // If item exists, add to its quantity
-              existingItem.quantity += item.quantity;
-            } else {
-              // If item doesn't exist, add new entry
-              inventories[name].push({
-                item: item.name,
-                quantity: item.quantity,
-                measure: item.measure
-              });
-            }
-          });
-          
-          // Remove moved items from shopping list
-          const indicesToRemove = [];
-          checkedBoxes.forEach(checkbox => {
-            const li = checkbox.closest('li');
-            const index = Array.from(li.parentNode.children).indexOf(li);
-            indicesToRemove.push(index);
-          });
-          
-          // Remove items in reverse order to avoid index issues
-          indicesToRemove.sort((a, b) => b - a).forEach(index => {
-            shoppingList.splice(index, 1);
-          });
-          
-          modal.classList.remove("active");
-          updateShoppingList();
-          updateGrid2(); // Update inventory grid
-          if (currentInventory === name) {
-            updateInventory(); // Update current inventory view
-          }
-          updateCurrentItemsList();
-        };
-        container.appendChild(btn);
+    function updateCurrentItemsList() {
+      const ul=document.getElementById('current-items-list');
+      ul.innerHTML='';
+      for(const inv in inventories) {
+        inventories[inv].forEach(e=>{
+          const mTxt=e.measure==='quantity'?'':` ${e.measure}`;
+          const exp=e.expiry?` - Expires ${new Date(e.expiry).toLocaleDateString()}`:'';
+          const li=document.createElement('li');
+          li.textContent=`${e.item} (${e.quantity}${mTxt})${exp} - ${inv}`;
+          ul.appendChild(li);
+        });
       }
-      
-      modal.classList.add("active");
     }
 
+    // ——— Shopping List ———
+    function updateShoppingList() {
+      const ul=document.getElementById('shopping-list-items');
+      ul.innerHTML='';
+      shoppingList.forEach((item,i)=>{
+        const mTxt=item.measure==='quantity'?'':` ${item.measure}`;
+        const li=document.createElement('li');
+        li.innerHTML=
+          `<input type="checkbox" class="item-checkbox" onchange="updatePurchaseButton()">
+           <div class="item-display">
+             <span class="item-name">${item.name}</span>
+             <span class="item-quantity">(${item.quantity}${mTxt})</span>
+           </div>
+           <div class="item-controls">
+             <button onclick="shoppingList.splice(${i},1); updateShoppingList();">🗑️</button>
+           </div>`;
+        ul.appendChild(li);
+      });
+    }
+    function updatePurchaseButton() {
+      const any=document.querySelector('.item-checkbox:checked');
+      document.querySelector('.purchase-btn').disabled=!any;
+    }
     function showAddItemForm() {
-      const ul = document.getElementById("shopping-list-items");
-      const li = document.createElement("li");
-      li.className = "new-item-form";
-      
-      const form = document.createElement('div');
-      form.className = 'edit-form';
-      form.innerHTML = `
-        <input type="text" class="edit-name" placeholder="Enter new item" />
-        <input type="number" class="edit-quantity" value="1" min="0.1" step="0.1" placeholder="Quantity" />
-        <select class="edit-measure">
-          <option value="quantity">Quantity</option>
-          <option value="cups">Cups</option>
-          <option value="tbsp">Tablespoons</option>
-          <option value="tsp">Teaspoons</option>
-          <option value="oz">Ounces</option>
-          <option value="lbs">Pounds</option>
-          <option value="g">Grams</option>
-          <option value="ml">Milliliters</option>
-          <option value="slices">Slices</option>
-        </select>
-        <button class="save-edit">Add</button>
-        <button class="cancel-edit">Cancel</button>
-      `;
-      
-      form.querySelector('.save-edit').onclick = () => {
-        const newName = form.querySelector('.edit-name').value.trim();
-        const newQuantity = parseFloat(form.querySelector('.edit-quantity').value) || 0.1;
-        const newMeasure = form.querySelector('.edit-measure').value;
-        if (newName && newQuantity > 0) {
-          shoppingList.push({
-            name: newName,
-            quantity: newQuantity,
-            measure: newMeasure
-          });
-          updateShoppingList();
-        }
-      };
-      
-      form.querySelector('.cancel-edit').onclick = () => {
+      const ul=document.getElementById('shopping-list-items');
+      const li=document.createElement('li');
+      li.className='new-item-form';
+      li.innerHTML=
+        `<div class="edit-form">
+           <input class="edit-name" type="text" placeholder="Enter new item">
+           <input class="edit-quantity" type="number" value="1" min="0.1" step="0.1">
+           <select class="edit-measure">
+             <option value="quantity">Quantity</option>
+             <option value="cups">Cups</option>
+             <option value="tbsp">Tbsp</option>
+             <option value="tsp">Tsp</option>
+             <option value="oz">Oz</option>
+             <option value="lbs">Lbs</option>
+             <option value="g">g</option>
+             <option value="ml">ml</option>
+             <option value="slices">Slices</option>
+           </select>
+           <button class="save-edit">Add</button>
+           <button class="cancel-edit">Cancel</button>
+         </div>`;
+      ul.prepend(li);
+      const form=li.querySelector('.edit-form');
+      form.querySelector('.save-edit').onclick=()=>{
+        const n=form.querySelector('.edit-name').value.trim();
+        const q=parseFloat(form.querySelector('.edit-quantity').value)||0;
+        const m=form.querySelector('.edit-measure').value;
+        if(n&&q>0){shoppingList.unshift({name:n,quantity:q,measure:m}); updateShoppingList();}
         li.remove();
       };
-      
-      li.appendChild(form);
-      ul.insertBefore(li, ul.firstChild);
+      form.querySelector('.cancel-edit').onclick=()=>li.remove();
       form.querySelector('.edit-name').focus();
     }
-
-    function getAllInventoryItems() {
-      const items = new Set();
-      for (const invName in inventories) {
-        inventories[invName].forEach(entry => items.add(entry.item.toLowerCase()));
+    function handlePurchasedItems() {
+      const checked=[...document.querySelectorAll('.item-checkbox:checked')];
+      const toMove=checked.map(cb=>{
+        const li=cb.closest('li');
+        return shoppingList[Array.from(li.parentNode.children).indexOf(li)];
+      });
+      const modal=document.getElementById('inventoryModal');
+      const btns=document.getElementById('inventory-buttons');
+      btns.innerHTML='';
+      for(const name in inventories){
+        const btn=document.createElement('button');
+        btn.textContent=name;
+        btn.onclick=()=>{
+          toMove.forEach(item=>{
+            const inv=inventories[name];
+            const ex=inv.find(x=>x.item.toLowerCase()===item.name.toLowerCase()&&x.measure===item.measure);
+            if(ex) ex.quantity+=item.quantity;
+            else inv.push({item:item.name,quantity:item.quantity,measure:item.measure});
+          });
+          const idxs=checked.map(cb=>Array.from(cb.closest('ul').children).indexOf(cb.closest('li')));
+          idxs.sort((a,b)=>b-a).forEach(i=>shoppingList.splice(i,1));
+          modal.style.display='none';
+          updateShoppingList(); updateGrid2();
+          if(currentInventory===name) updateInventory();
+          updateCurrentItemsList();
+          userProfile.streak = userProfile.streak + 1;
+          if(document.getElementById('tab5').classList.contains('active')) loadProfile();
+        };
+        btns.appendChild(btn);
       }
-      return items;
+      modal.style.display='flex';
     }
 
-    function renderRecipes() {
-      const list = document.getElementById("recipe-list");
-      list.innerHTML = '';
-      const inventoryItems = getAllInventoryItems();
-      
-      recipes.forEach((recipe, index) => {
-        const li = document.createElement("li");
-        li.className = "recipe-card";
-        
-        // Recipe header with name and availability
-        const header = document.createElement("div");
-        header.className = "recipe-header";
-        const hasAll = recipe.ingredients.every(i => inventoryItems.has(i.name.toLowerCase()));
-        header.innerHTML = `
-          <h3>${recipe.name}</h3>
-          <span class="availability ${hasAll ? 'available' : 'missing'}">
-            ${hasAll ? '✅ All ingredients available' : '❌ Missing ingredients'}
-          </span>
-        `;
-        
-        // Ingredients section
-        const ingredientsSection = document.createElement("div");
-        ingredientsSection.className = "recipe-section";
-        ingredientsSection.innerHTML = `
-          <h4>Ingredients:</h4>
-          <ul class="ingredients-list">
-            ${recipe.ingredients.map(ing => `
-              <li class="${inventoryItems.has(ing.name.toLowerCase()) ? 'available' : 'missing'}">
-                ${ing.quantity} ${ing.unit} ${ing.name}
-              </li>
-            `).join('')}
-          </ul>
-        `;
-        
-        // Instructions section
-        const instructionsSection = document.createElement("div");
-        instructionsSection.className = "recipe-section";
-        instructionsSection.innerHTML = `
-          <h4>Instructions:</h4>
-          <div class="instructions">${recipe.instructions.replace(/\n/g, '<br>')}</div>
-        `;
-        
-        // Recipe controls
-        const controls = document.createElement("div");
-        controls.className = "recipe-controls";
-        controls.innerHTML = `
-          <button onclick="editRecipe(${index})" class="edit-btn">✏️ Edit</button>
-          <button onclick="deleteRecipe(${index})" class="delete-btn">🗑️ Delete</button>
-        `;
-        
-        li.append(header, ingredientsSection, instructionsSection, controls);
-        list.appendChild(li);
+    // ——— Recipes ———
+    function getAllInventoryItems(){
+      const s=new Set();
+      for(const inv in inventories) inventories[inv].forEach(e=>s.add(e.item.toLowerCase()));
+      return s;
+    }
+    function renderRecipes(){
+      const ul=document.getElementById('recipe-list');
+      ul.innerHTML='';
+      const have=getAllInventoryItems();
+      recipes.forEach((r,i)=>{
+        const li=document.createElement('li');
+        li.className='recipe-card';
+        const ok=r.ingredients.every(ing=>have.has(ing.name.toLowerCase()));
+        const header=`<div class="recipe-header">
+                        <h3>${r.name}</h3>
+                        <span class="availability ${ok?'available':'missing'}">
+                          ${ok?'✅ All ingredients':'❌ Missing'}
+                        </span>
+                      </div>`;
+        const ings=`<div class="recipe-section">
+                       <h4>Ingredients</h4>
+                       <ul class="ingredients-list">
+                         ${r.ingredients.map(ing=>
+                           `<li class="${have.has(ing.name.toLowerCase())?'available':'missing'}">
+                              ${ing.quantity} ${ing.unit} ${ing.name}
+                            </li>`).join('')}
+                       </ul>
+                     </div>`;
+        const instr=`<div class="recipe-section">
+                       <h4>Instructions</h4>
+                       <div class="instructions">${r.instructions.replace(/\n/g,'<br>')}</div>
+                     </div>`;
+        const controls=`<div class="recipe-controls">
+                          <button class="edit-btn" onclick="editRecipe(${i})">✏️ Edit</button>
+                          <button class="delete-btn" onclick="deleteRecipe(${i})">🗑️ Delete</button>
+                        </div>`;
+        li.innerHTML=header+ings+instr+controls;
+        ul.appendChild(li);
       });
     }
-
-    function editRecipe(index) {
-      const recipe = recipes[index];
-      document.getElementById("new-recipe-name").value = recipe.name;
-      document.getElementById("new-recipe-instructions").value = recipe.instructions;
-      document.getElementById("new-ingredients-list").innerHTML = '';
-      newRecipeIngredients = recipe.ingredients.map(ing => ({
-        name: ing.name,
-        quantity: ing.quantity,
-        unit: ing.unit
-      }));
-      
-      // Add ingredients to the list
-      newRecipeIngredients.forEach(ing => {
-        const li = document.createElement("li");
-        li.textContent = `${ing.quantity} ${ing.unit} ${ing.name}`;
-        document.getElementById("new-ingredients-list").appendChild(li);
-      });
-      
-      document.getElementById("recipeModal").classList.add("active");
+    function openRecipeModal(){
+      newRecipeIngredients=[];
+      document.getElementById('new-recipe-name').value='';
+      document.getElementById('new-recipe-instructions').value='';
+      document.getElementById('new-ingredient').value='';
+      document.getElementById('new-ingredients-list').innerHTML='';
+      document.getElementById('recipeModal').style.display='flex';
     }
-
-    function showConfirmModal(title, message, callback, data = null) {
-      document.getElementById("confirmTitle").textContent = title;
-      document.getElementById("confirmMessage").textContent = message;
-      confirmCallback = callback;
-      confirmData = data;
-      document.getElementById("confirmModal").classList.add("active");
+    function closeRecipeModal(){
+      document.getElementById('recipeModal').style.display='none';
     }
-
-    function closeConfirmModal() {
-      document.getElementById("confirmModal").classList.remove("active");
-      confirmCallback = null;
-      confirmData = null;
+    function addIngredientToNewRecipe(){
+      const v=document.getElementById('new-ingredient').value.trim();
+      if(!v)return;
+      const parts=v.split(' ');
+      if(parts.length<3)return alert("Use 'qty unit name'");
+      const q=parseFloat(parts[0]);
+      const u=parts[1].toLowerCase();
+      const n=parts.slice(2).join(' ');
+      const valid=['quantity','cups','tbsp','tsp','oz','lbs','g','ml','slices'];
+      if(isNaN(q)||!valid.includes(u)||!n)return alert("Invalid ingredient");
+      newRecipeIngredients.push({name:n,quantity:q,unit:u});
+      const li=document.createElement('li');
+      li.textContent=`${q} ${u} ${n}`;
+      document.getElementById('new-ingredients-list').appendChild(li);
+      document.getElementById('new-ingredient').value='';
     }
-
-    function handleConfirmAction() {
-      if (confirmCallback) {
-        confirmCallback(confirmData);
-      }
+    function saveNewRecipe(){
+      const name=document.getElementById('new-recipe-name').value.trim();
+      const ins=document.getElementById('new-recipe-instructions').value.trim();
+      if(!name||!newRecipeIngredients.length)return alert("Name & ≥1 ingredient");
+      recipes.push({name,ingredients:[...newRecipeIngredients],instructions:ins});
+      renderRecipes();
+      closeRecipeModal();
+    }
+    // ——— Confirm Modal ———
+    let confirmCallback;
+    function deleteRecipe(i){
+      document.getElementById('confirmTitle').textContent="Delete Recipe?";
+      document.getElementById('confirmMessage').textContent="Are you sure?";
+      confirmCallback=()=>{recipes.splice(i,1); renderRecipes();};
+      document.getElementById('confirmModal').style.display='flex';
+    }
+    function handleConfirmAction(){
+      if(confirmCallback)confirmCallback();
       closeConfirmModal();
     }
-
-    function deleteRecipe(index) {
-      showConfirmModal(
-        "Delete Recipe",
-        "Are you sure you want to delete this recipe?",
-        (index) => {
-          recipes.splice(index, 1);
-          renderRecipes();
-        },
-        index
-      );
+    function closeConfirmModal(){
+      document.getElementById('confirmModal').style.display='none';
+      confirmCallback=null;
     }
 
-    function openRecipeModal() {
-      newRecipeIngredients = [];
-      document.getElementById("new-recipe-name").value = '';
-      document.getElementById("new-recipe-instructions").value = '';
-      document.getElementById("new-ingredient").value = '';
-      document.getElementById("new-ingredients-list").innerHTML = '';
-      document.getElementById("recipeModal").classList.add("active");
+    // ——— Inventory Modal close ———
+    function closeInventoryModal(){
+      document.getElementById('inventoryModal').style.display='none';
     }
 
-    function closeRecipeModal() {
-      document.getElementById("recipeModal").classList.remove("active");
-    }
-
-    function addIngredientToNewRecipe() {
-      const input = document.getElementById("new-ingredient");
-      const ing = input.value.trim();
-      if (ing) {
-        // Parse ingredient string (format: "quantity unit name")
-        const parts = ing.split(" ");
-        if (parts.length >= 3) {
-          const quantity = parseFloat(parts[0]);
-          const unit = parts[1].toLowerCase();
-          const name = parts.slice(2).join(" ");
-          
-          // Validate unit
-          const validUnits = ['quantity', 'cups', 'tbsp', 'tsp', 'oz', 'lbs', 'g', 'ml', 'slices'];
-          if (!isNaN(quantity) && validUnits.includes(unit) && name) {
-            newRecipeIngredients.push({ name, quantity, unit });
-            const li = document.createElement("li");
-            li.textContent = `${quantity} ${unit} ${name}`;
-            document.getElementById("new-ingredients-list").appendChild(li);
-            input.value = '';
-          } else {
-            showConfirmModal(
-              "Invalid Input",
-              "Please enter ingredient in format: quantity unit name\nValid units: quantity, cups, tbsp, tsp, oz, lbs, g, ml, slices",
-              () => {}
-            );
-          }
-        } else {
-          showConfirmModal(
-            "Invalid Input",
-            "Please enter ingredient in format: quantity unit name\nValid units: quantity, cups, tbsp, tsp, oz, lbs, g, ml, slices",
-            () => {}
-          );
-        }
-      }
-    }
-
-    function saveNewRecipe() {
-      const name = document.getElementById("new-recipe-name").value.trim();
-      const instructions = document.getElementById("new-recipe-instructions").value.trim();
-      
-      if (name && newRecipeIngredients.length > 0) {
-        recipes.push({
-          name: name,
-          ingredients: [...newRecipeIngredients],
-          instructions: instructions
-        });
-        renderRecipes();
-        closeRecipeModal();
-      } else {
-        alert("Please provide a name and at least one ingredient.");
-      }
-    }
-
-    function closeInventoryModal() {
-      document.getElementById("inventoryModal").classList.remove("active");
-    }
-
-    function updateHomePage() {
+    // ——— Home page updates ———
+    function updateHomePage(){
       updateExpiringItems();
       updateLowInventory();
       updateRecipeSuggestions();
       updateInventoryOverview();
     }
-
-    function updateExpiringItems() {
-      const container = document.getElementById('expiring-items');
-      container.innerHTML = '';
-      
-      const today = new Date();
-      const expiringItems = [];
-      
-      // Collect all expiring items
-      for (const invName in inventories) {
-        inventories[invName].forEach(item => {
-          if (item.expiry) {
-            const expiryDate = new Date(item.expiry);
-            const daysUntilExpiry = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
-            if (daysUntilExpiry <= 3 && daysUntilExpiry >= 0) {
-              expiringItems.push({
-                ...item,
-                inventory: invName,
-                daysUntilExpiry
-              });
-            }
+    function updateExpiringItems(){
+      const c=document.getElementById('expiring-items');
+      c.innerHTML='';
+      const today=new Date(), arr=[];
+      for(const inv in inventories){
+        inventories[inv].forEach(item=>{
+          if(item.expiry){
+            const d=new Date(item.expiry);
+            const days=Math.ceil((d-today)/(1000*60*60*24));
+            if(days>=0&&days<=3) arr.push({...item,inventory:inv,days});
           }
         });
       }
-      
-      if (expiringItems.length === 0) {
-        container.innerHTML = '<p class="no-items">No items expiring soon</p>';
-        return;
-      }
-      
-      // Sort by expiry date
-      expiringItems.sort((a, b) => a.daysUntilExpiry - b.daysUntilExpiry);
-      
-      // Display items
-      expiringItems.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'expiring-item';
-        div.innerHTML = `
-          <span class="item-name">${item.item}</span>
-          <span class="item-details">
-            ${item.quantity} ${item.measure} - ${item.inventory}
-          </span>
-          <span class="expiry-warning ${item.daysUntilExpiry === 0 ? 'expired' : 'expiring-soon'}">
-            ${item.daysUntilExpiry === 0 ? 'Expires today!' : `Expires in ${item.daysUntilExpiry} days`}
-          </span>
-        `;
-        container.appendChild(div);
-      });
+      if(!arr.length){c.innerHTML='<p class="no-items">No expiring soon</p>';return;}
+      arr.sort((a,b)=>a.days-b.days)
+         .forEach(i=>{
+           const d=document.createElement('div');
+           d.className='expiring-item';
+           d.innerHTML=`<span class="item-name">${i.item}</span>
+                        <span class="item-details">${i.quantity} ${i.measure} - ${i.inventory}</span>
+                        <span class="expiry-warning ${i.days===0?'expired':'expiring-soon'}">
+                          ${i.days===0?'Expires today':`Expires in ${i.days} days`}
+                        </span>`;
+           c.appendChild(d);
+         });
     }
-
-    function updateLowInventory() {
-      const container = document.getElementById('low-inventory');
-      container.innerHTML = '';
-      
-      const lowItems = [];
-      const LOW_THRESHOLD = 2; // Consider items with quantity <= 2 as low
-      
-      // Collect low inventory items
-      for (const invName in inventories) {
-        inventories[invName].forEach(item => {
-          if (item.quantity <= LOW_THRESHOLD) {
-            lowItems.push({
-              ...item,
-              inventory: invName
-            });
-          }
+    function updateLowInventory(){
+      const c=document.getElementById('low-inventory');
+      c.innerHTML='';
+      const arr=[],TH=2;
+      for(const inv in inventories){
+        inventories[inv].forEach(i=>{
+          if(i.quantity<=TH) arr.push({...i,inventory:inv});
         });
       }
-      
-      if (lowItems.length === 0) {
-        container.innerHTML = '<p class="no-items">No low inventory items</p>';
-        return;
-      }
-      
-      // Display items
-      lowItems.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'low-item';
-        div.innerHTML = `
-          <span class="item-name">${item.item}</span>
-          <span class="item-details">
-            ${item.quantity} ${item.measure} - ${item.inventory}
-          </span>
-          <button onclick="addToShoppingList('${item.item}', ${item.quantity}, '${item.measure}')">
-            Add to Shopping List
-          </button>
-        `;
-        container.appendChild(div);
+      if(!arr.length){c.innerHTML='<p class="no-items">No low items</p>';return;}
+      arr.forEach(i=>{
+        const d=document.createElement('div');
+        d.className='low-item';
+        d.innerHTML=`<span class="item-name">${i.item}</span>
+                     <span class="item-details">${i.quantity} ${i.measure} - ${i.inventory}</span>
+                     <button onclick="addToShoppingList('${i.item}',${i.quantity},'${i.measure}')">
+                       Add to Shopping List
+                     </button>`;
+        c.appendChild(d);
       });
     }
-
-    function updateRecipeSuggestions() {
-      const container = document.getElementById('recipe-suggestions');
-      container.innerHTML = '';
-      
-      const inventoryItems = getAllInventoryItems();
-      const suggestedRecipes = recipes.filter(recipe => {
-        // Check if we have at least 70% of the ingredients
-        const requiredIngredients = recipe.ingredients.length;
-        const availableIngredients = recipe.ingredients.filter(ing => 
-          inventoryItems.has(ing.name.toLowerCase())
-        ).length;
-        return (availableIngredients / requiredIngredients) >= 0.7;
+    function updateRecipeSuggestions(){
+      const c=document.getElementById('recipe-suggestions');
+      c.innerHTML='';
+      const have=getAllInventoryItems();
+      const sugg=recipes.filter(r=>{
+        const req=r.ingredients.length;
+        const ok=r.ingredients.filter(ing=>have.has(ing.name.toLowerCase())).length;
+        return ok/req>=0.7;
       });
-      
-      if (suggestedRecipes.length === 0) {
-        container.innerHTML = '<p class="no-items">No recipe suggestions available</p>';
-        return;
-      }
-      
-      // Display up to 3 suggested recipes
-      suggestedRecipes.slice(0, 3).forEach(recipe => {
-        const div = document.createElement('div');
-        div.className = 'recipe-suggestion';
-        div.innerHTML = `
-          <h4>${recipe.name}</h4>
-          <p>${recipe.ingredients.length} ingredients</p>
-          <button onclick="showTab(4)">View Recipe</button>
-        `;
-        container.appendChild(div);
+      if(!sugg.length){c.innerHTML='<p class="no-items">No suggestions</p>';return;}
+      sugg.slice(0,3).forEach(r=>{
+        const d=document.createElement('div');
+        d.className='recipe-suggestion';
+        d.innerHTML=`<h4>${r.name}</h4>
+                     <p>${r.ingredients.length} ingredients</p>
+                     <button onclick="showTab(4)">View Recipe</button>`;
+        c.appendChild(d);
       });
     }
-
-    function updateInventoryOverview() {
-      const container = document.getElementById('inventory-overview');
-      container.innerHTML = '';
-      
-      // Count items in each inventory
-      const inventoryCounts = {};
-      for (const invName in inventories) {
-        inventoryCounts[invName] = inventories[invName].length;
-      }
-      
-      // Display inventory counts
-      for (const invName in inventoryCounts) {
-        const div = document.createElement('div');
-        div.className = 'inventory-count';
-        div.innerHTML = `
-          <span class="inventory-name">${invName}</span>
-          <span class="item-count">${inventoryCounts[invName]} items</span>
-          <button onclick="showInventory('${invName}')">View</button>
-        `;
-        container.appendChild(div);
+    function updateInventoryOverview(){
+      const c=document.getElementById('inventory-overview');
+      c.innerHTML='';
+      for(const inv in inventories){
+        const d=document.createElement('div');
+        d.className='inventory-count';
+        d.innerHTML=`<span class="inventory-name">${inv}</span>
+                     <span class="item-count">${inventories[inv].length} items</span>
+                     <button onclick="showInventory('${inv}')">View</button>`;
+        c.appendChild(d);
       }
     }
-
-    function addToShoppingList(item, quantity, measure) {
-      shoppingList.push({
-        name: item,
-        quantity: quantity,
-        measure: measure
-      });
+    function addToShoppingList(item,qty,measure){
+      shoppingList.push({name:item,quantity:qty,measure});
       updateShoppingList();
-      showTab(3); // Switch to shopping list tab
+      showTab(3);
     }
 
+    // ——— Init ———
     updateGrid2();
     updateShoppingList();
+    loadProfile();
   </script>
 </body>
 </html>
