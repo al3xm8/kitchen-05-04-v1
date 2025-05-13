@@ -14,9 +14,36 @@
         <!-- HOME TAB -->
         <div class="tab-content active" id="tab1">
           <h2 class="tab-title">Home</h2>
-          <div class="current-items-container">
-            <h4>Current Items Across All Inventories:</h4>
-            <ul id="current-items-list"></ul>
+          
+          <!-- Quick Actions -->
+          <div class="quick-actions">
+            <button onclick="showTab(2)">➕ Add to Inventory</button>
+            <button onclick="showTab(3)">📝 Add to Shopping List</button>
+            <button onclick="showTab(4)">🔍 Find Recipe</button>
+          </div>
+
+          <!-- Expiring Items Section -->
+          <div class="home-section">
+            <h3>⚠️ Items Expiring Soon</h3>
+            <div class="expiring-items" id="expiring-items"></div>
+          </div>
+
+          <!-- Low Inventory Section -->
+          <div class="home-section">
+            <h3>📉 Low Inventory</h3>
+            <div class="low-inventory" id="low-inventory"></div>
+          </div>
+
+          <!-- Recipe Suggestions -->
+          <div class="home-section">
+            <h3>👨‍🍳 Suggested Recipes</h3>
+            <div class="recipe-suggestions" id="recipe-suggestions"></div>
+          </div>
+
+          <!-- Quick Inventory Overview -->
+          <div class="home-section">
+            <h3>📦 Inventory Overview</h3>
+            <div class="inventory-overview" id="inventory-overview"></div>
           </div>
         </div>
 
@@ -35,10 +62,16 @@
             <h3 id="current-inventory-name"></h3>
             <form id="inventory-form" onsubmit="addToInventory2(event)">
               <input type="text" id="inv-item" placeholder="Item" required />
-              <input type="number" id="inv-quantity" placeholder="Quantity" min="1" required />
+              <input type="number" id="inv-quantity" placeholder="Quantity" min="0.1" step="0.1" required />
               <select id="inv-measure" required>
                 <option value="quantity">Quantity</option>
-                <option value="ounces">Ounces</option>
+                <option value="cups">Cups</option>
+                <option value="tbsp">Tablespoons</option>
+                <option value="tsp">Teaspoons</option>
+                <option value="oz">Ounces</option>
+                <option value="lbs">Pounds</option>
+                <option value="g">Grams</option>
+                <option value="ml">Milliliters</option>
                 <option value="slices">Slices</option>
               </select>
               <input type="date" id="inv-expiry" placeholder="Expiration Date" />
@@ -85,29 +118,42 @@
           <button onclick="showTab(4)">📖<br>Recipes</button>
           <button onclick="showTab(5)">👤<br>Profile</button>
         </div>
+
+        <!-- Recipe Modal -->
+        <div id="recipeModal" class="modal">
+          <div class="modal-content">
+            <h3>Add New Recipe</h3>
+            <input type="text" id="new-recipe-name" placeholder="Recipe Name">
+            <textarea id="new-recipe-instructions" placeholder="Enter recipe instructions"></textarea>
+            <input type="text" id="new-ingredient" placeholder="Enter ingredient (e.g., '2 cups flour')">
+            <button onclick="addIngredientToNewRecipe()">Add Ingredient</button>
+            <ul id="new-ingredients-list"></ul>
+            <button onclick="saveNewRecipe()">Done</button>
+            <button onclick="closeRecipeModal()">Cancel</button>
+          </div>
+        </div>
+
+        <!-- Inventory Modal -->
+        <div id="inventoryModal" class="modal">
+          <div class="modal-content">
+            <p>Select inventory to move item into:</p>
+            <div id="inventory-buttons"></div>
+            <button onclick="closeInventoryModal()">Cancel</button>
+          </div>
+        </div>
+
+        <!-- Confirmation Modal -->
+        <div id="confirmModal" class="modal">
+          <div class="modal-content">
+            <h3 id="confirmTitle">Confirm Action</h3>
+            <p id="confirmMessage"></p>
+            <div class="confirm-buttons">
+              <button onclick="handleConfirmAction()" id="confirmYes">Yes</button>
+              <button onclick="closeConfirmModal()">No</button>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-
-  <!-- Recipe Modal -->
-  <div id="recipeModal" class="modal">
-    <div class="modal-content">
-      <h3>Add New Recipe</h3>
-      <input type="text" id="new-recipe-name" placeholder="Recipe Name">
-      <input type="text" id="new-ingredient" placeholder="Ingredient">
-      <button onclick="addIngredientToNewRecipe()">Add Ingredient</button>
-      <ul id="new-ingredients-list"></ul>
-      <button onclick="saveNewRecipe()">Done</button>
-      <button onclick="closeRecipeModal()">Cancel</button>
-    </div>
-  </div>
-
-  <!-- Inventory Modal -->
-  <div id="inventoryModal" class="modal" style="display:none;">
-    <div class="modal-content">
-      <p>Select inventory to move item into:</p>
-      <div id="inventory-buttons"></div>
-      <button onclick="closeInventoryModal()">Cancel</button>
     </div>
   </div>
 
@@ -118,21 +164,49 @@
       { name: "Eggs", quantity: 12, measure: "quantity" }
     ];
     const recipes = [
-      { name: "Omelette", ingredients: ["Eggs", "Milk", "Salt"] },
-      { name: "Pasta", ingredients: ["Pasta", "Tomato Sauce", "Olive Oil"] },
-      { name: "Salad", ingredients: ["Lettuce", "Tomato", "Cucumber"] }
+      { 
+        name: "Omelette", 
+        ingredients: [
+          { name: "Eggs", quantity: 2, unit: "whole" },
+          { name: "Milk", quantity: 2, unit: "tbsp" },
+          { name: "Salt", quantity: 0.25, unit: "tsp" }
+        ],
+        instructions: "1. Whisk eggs with milk and salt\n2. Heat pan with butter\n3. Pour mixture and cook until set\n4. Fold and serve"
+      },
+      { 
+        name: "Pasta", 
+        ingredients: [
+          { name: "Pasta", quantity: 8, unit: "oz" },
+          { name: "Tomato Sauce", quantity: 1, unit: "cup" },
+          { name: "Olive Oil", quantity: 2, unit: "tbsp" }
+        ],
+        instructions: "1. Boil pasta according to package\n2. Heat sauce in separate pan\n3. Drain pasta and mix with sauce\n4. Drizzle with olive oil"
+      },
+      { 
+        name: "Salad", 
+        ingredients: [
+          { name: "Lettuce", quantity: 1, unit: "head" },
+          { name: "Tomato", quantity: 2, unit: "whole" },
+          { name: "Cucumber", quantity: 1, unit: "whole" }
+        ],
+        instructions: "1. Wash and chop vegetables\n2. Combine in large bowl\n3. Add dressing of choice\n4. Toss and serve"
+      }
     ];
     let newRecipeIngredients = [];
     const inventories = { Fridge: [] };
     let currentInventory = 'Fridge';
     let inventory = inventories[currentInventory];
+    let confirmCallback = null;
+    let confirmData = null;
 
     function showTab(tabNum) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.getElementById('tab' + tabNum).classList.add('active');
       document.querySelectorAll('.tab-bar button').forEach(btn => btn.classList.remove('active'));
       document.querySelectorAll('.tab-bar button')[tabNum - 1].classList.add('active');
-      if (tabNum === 1) updateCurrentItemsList();
+      if (tabNum === 1) {
+        updateHomePage();
+      }
       if (tabNum === 4) renderRecipes();
     }
 
@@ -173,7 +247,7 @@
     function addToInventory2(event) {
       event.preventDefault();
       const item = document.getElementById('inv-item').value.trim();
-      let quantity = parseInt(document.getElementById('inv-quantity').value || '1');
+      let quantity = parseFloat(document.getElementById('inv-quantity').value || '1');
       const measure = document.getElementById('inv-measure').value;
       const expiry = document.getElementById('inv-expiry').value;
       const existing = inventory.find(i => i.item.toLowerCase() === item.toLowerCase() && i.measure === measure);
@@ -209,10 +283,16 @@
         editForm.style.display = 'none';
         editForm.innerHTML = `
           <input type="text" class="edit-name" value="${entry.item}" placeholder="Item name" />
-          <input type="number" class="edit-quantity" value="${entry.quantity}" min="1" placeholder="Quantity" />
+          <input type="number" class="edit-quantity" value="${entry.quantity}" min="0.1" step="0.1" placeholder="Quantity" />
           <select class="edit-measure">
             <option value="quantity" ${entry.measure === 'quantity' ? 'selected' : ''}>Quantity</option>
-            <option value="ounces" ${entry.measure === 'ounces' ? 'selected' : ''}>Ounces</option>
+            <option value="cups" ${entry.measure === 'cups' ? 'selected' : ''}>Cups</option>
+            <option value="tbsp" ${entry.measure === 'tbsp' ? 'selected' : ''}>Tablespoons</option>
+            <option value="tsp" ${entry.measure === 'tsp' ? 'selected' : ''}>Teaspoons</option>
+            <option value="oz" ${entry.measure === 'oz' ? 'selected' : ''}>Ounces</option>
+            <option value="lbs" ${entry.measure === 'lbs' ? 'selected' : ''}>Pounds</option>
+            <option value="g" ${entry.measure === 'g' ? 'selected' : ''}>Grams</option>
+            <option value="ml" ${entry.measure === 'ml' ? 'selected' : ''}>Milliliters</option>
             <option value="slices" ${entry.measure === 'slices' ? 'selected' : ''}>Slices</option>
           </select>
           <button class="save-edit">Save</button>
@@ -311,10 +391,16 @@
         editForm.style.display = 'none';
         editForm.innerHTML = `
           <input type="text" class="edit-name" value="${item.name}" placeholder="Item name" />
-          <input type="number" class="edit-quantity" value="${item.quantity}" min="1" placeholder="Quantity" />
+          <input type="number" class="edit-quantity" value="${item.quantity}" min="0.1" step="0.1" placeholder="Quantity" />
           <select class="edit-measure">
             <option value="quantity" ${item.measure === 'quantity' ? 'selected' : ''}>Quantity</option>
-            <option value="ounces" ${item.measure === 'ounces' ? 'selected' : ''}>Ounces</option>
+            <option value="cups" ${item.measure === 'cups' ? 'selected' : ''}>Cups</option>
+            <option value="tbsp" ${item.measure === 'tbsp' ? 'selected' : ''}>Tablespoons</option>
+            <option value="tsp" ${item.measure === 'tsp' ? 'selected' : ''}>Teaspoons</option>
+            <option value="oz" ${item.measure === 'oz' ? 'selected' : ''}>Ounces</option>
+            <option value="lbs" ${item.measure === 'lbs' ? 'selected' : ''}>Pounds</option>
+            <option value="g" ${item.measure === 'g' ? 'selected' : ''}>Grams</option>
+            <option value="ml" ${item.measure === 'ml' ? 'selected' : ''}>Milliliters</option>
             <option value="slices" ${item.measure === 'slices' ? 'selected' : ''}>Slices</option>
           </select>
           <button class="save-edit">Save</button>
@@ -345,7 +431,7 @@
         // Add event listeners for edit form
         editForm.querySelector('.save-edit').onclick = () => {
           const newName = editForm.querySelector('.edit-name').value.trim();
-          const newQuantity = parseInt(editForm.querySelector('.edit-quantity').value) || 1;
+          const newQuantity = parseFloat(editForm.querySelector('.edit-quantity').value) || 0.1;
           const newMeasure = editForm.querySelector('.edit-measure').value;
           if (newName && newQuantity > 0) {
             shoppingList[index] = {
@@ -430,7 +516,7 @@
             shoppingList.splice(index, 1);
           });
           
-          modal.style.display = "none";
+          modal.classList.remove("active");
           updateShoppingList();
           updateGrid2(); // Update inventory grid
           if (currentInventory === name) {
@@ -441,7 +527,7 @@
         container.appendChild(btn);
       }
       
-      modal.style.display = "flex";
+      modal.classList.add("active");
     }
 
     function showAddItemForm() {
@@ -453,10 +539,16 @@
       form.className = 'edit-form';
       form.innerHTML = `
         <input type="text" class="edit-name" placeholder="Enter new item" />
-        <input type="number" class="edit-quantity" value="1" min="1" placeholder="Quantity" />
+        <input type="number" class="edit-quantity" value="1" min="0.1" step="0.1" placeholder="Quantity" />
         <select class="edit-measure">
           <option value="quantity">Quantity</option>
-          <option value="ounces">Ounces</option>
+          <option value="cups">Cups</option>
+          <option value="tbsp">Tablespoons</option>
+          <option value="tsp">Teaspoons</option>
+          <option value="oz">Ounces</option>
+          <option value="lbs">Pounds</option>
+          <option value="g">Grams</option>
+          <option value="ml">Milliliters</option>
           <option value="slices">Slices</option>
         </select>
         <button class="save-edit">Add</button>
@@ -465,7 +557,7 @@
       
       form.querySelector('.save-edit').onclick = () => {
         const newName = form.querySelector('.edit-name').value.trim();
-        const newQuantity = parseInt(form.querySelector('.edit-quantity').value) || 1;
+        const newQuantity = parseFloat(form.querySelector('.edit-quantity').value) || 0.1;
         const newMeasure = form.querySelector('.edit-measure').value;
         if (newName && newQuantity > 0) {
           shoppingList.push({
@@ -498,58 +590,170 @@
       const list = document.getElementById("recipe-list");
       list.innerHTML = '';
       const inventoryItems = getAllInventoryItems();
+      
       recipes.forEach((recipe, index) => {
         const li = document.createElement("li");
-        li.innerHTML = `<strong>${recipe.name}</strong>: `;
-        const hasAll = recipe.ingredients.every(i => inventoryItems.has(i.toLowerCase()));
-        li.innerHTML += hasAll ? "✅" : "❌";
-        li.title = `Needs: ${recipe.ingredients.join(', ')}`;
-
-        const ingredientsList = document.createElement("ul");
-        recipe.ingredients.forEach(ing => {
-          const ingLi = document.createElement("li");
-          ingLi.textContent = ing;
-          ingredientsList.appendChild(ingLi);
-        });
-
-        const removeBtn = document.createElement("button");
-        removeBtn.textContent = "🗑 Remove";
-        removeBtn.onclick = () => { recipes.splice(index, 1); renderRecipes(); };
-
-        li.appendChild(ingredientsList);
-        li.appendChild(removeBtn);
+        li.className = "recipe-card";
+        
+        // Recipe header with name and availability
+        const header = document.createElement("div");
+        header.className = "recipe-header";
+        const hasAll = recipe.ingredients.every(i => inventoryItems.has(i.name.toLowerCase()));
+        header.innerHTML = `
+          <h3>${recipe.name}</h3>
+          <span class="availability ${hasAll ? 'available' : 'missing'}">
+            ${hasAll ? '✅ All ingredients available' : '❌ Missing ingredients'}
+          </span>
+        `;
+        
+        // Ingredients section
+        const ingredientsSection = document.createElement("div");
+        ingredientsSection.className = "recipe-section";
+        ingredientsSection.innerHTML = `
+          <h4>Ingredients:</h4>
+          <ul class="ingredients-list">
+            ${recipe.ingredients.map(ing => `
+              <li class="${inventoryItems.has(ing.name.toLowerCase()) ? 'available' : 'missing'}">
+                ${ing.quantity} ${ing.unit} ${ing.name}
+              </li>
+            `).join('')}
+          </ul>
+        `;
+        
+        // Instructions section
+        const instructionsSection = document.createElement("div");
+        instructionsSection.className = "recipe-section";
+        instructionsSection.innerHTML = `
+          <h4>Instructions:</h4>
+          <div class="instructions">${recipe.instructions.replace(/\n/g, '<br>')}</div>
+        `;
+        
+        // Recipe controls
+        const controls = document.createElement("div");
+        controls.className = "recipe-controls";
+        controls.innerHTML = `
+          <button onclick="editRecipe(${index})" class="edit-btn">✏️ Edit</button>
+          <button onclick="deleteRecipe(${index})" class="delete-btn">🗑️ Delete</button>
+        `;
+        
+        li.append(header, ingredientsSection, instructionsSection, controls);
         list.appendChild(li);
       });
+    }
+
+    function editRecipe(index) {
+      const recipe = recipes[index];
+      document.getElementById("new-recipe-name").value = recipe.name;
+      document.getElementById("new-recipe-instructions").value = recipe.instructions;
+      document.getElementById("new-ingredients-list").innerHTML = '';
+      newRecipeIngredients = recipe.ingredients.map(ing => ({
+        name: ing.name,
+        quantity: ing.quantity,
+        unit: ing.unit
+      }));
+      
+      // Add ingredients to the list
+      newRecipeIngredients.forEach(ing => {
+        const li = document.createElement("li");
+        li.textContent = `${ing.quantity} ${ing.unit} ${ing.name}`;
+        document.getElementById("new-ingredients-list").appendChild(li);
+      });
+      
+      document.getElementById("recipeModal").classList.add("active");
+    }
+
+    function showConfirmModal(title, message, callback, data = null) {
+      document.getElementById("confirmTitle").textContent = title;
+      document.getElementById("confirmMessage").textContent = message;
+      confirmCallback = callback;
+      confirmData = data;
+      document.getElementById("confirmModal").classList.add("active");
+    }
+
+    function closeConfirmModal() {
+      document.getElementById("confirmModal").classList.remove("active");
+      confirmCallback = null;
+      confirmData = null;
+    }
+
+    function handleConfirmAction() {
+      if (confirmCallback) {
+        confirmCallback(confirmData);
+      }
+      closeConfirmModal();
+    }
+
+    function deleteRecipe(index) {
+      showConfirmModal(
+        "Delete Recipe",
+        "Are you sure you want to delete this recipe?",
+        (index) => {
+          recipes.splice(index, 1);
+          renderRecipes();
+        },
+        index
+      );
     }
 
     function openRecipeModal() {
       newRecipeIngredients = [];
       document.getElementById("new-recipe-name").value = '';
+      document.getElementById("new-recipe-instructions").value = '';
       document.getElementById("new-ingredient").value = '';
       document.getElementById("new-ingredients-list").innerHTML = '';
-      document.getElementById("recipeModal").style.display = "block";
+      document.getElementById("recipeModal").classList.add("active");
     }
 
     function closeRecipeModal() {
-      document.getElementById("recipeModal").style.display = "none";
+      document.getElementById("recipeModal").classList.remove("active");
     }
 
     function addIngredientToNewRecipe() {
       const input = document.getElementById("new-ingredient");
       const ing = input.value.trim();
       if (ing) {
-        newRecipeIngredients.push(ing);
-        const li = document.createElement("li");
-        li.textContent = ing;
-        document.getElementById("new-ingredients-list").appendChild(li);
-        input.value = '';
+        // Parse ingredient string (format: "quantity unit name")
+        const parts = ing.split(" ");
+        if (parts.length >= 3) {
+          const quantity = parseFloat(parts[0]);
+          const unit = parts[1].toLowerCase();
+          const name = parts.slice(2).join(" ");
+          
+          // Validate unit
+          const validUnits = ['quantity', 'cups', 'tbsp', 'tsp', 'oz', 'lbs', 'g', 'ml', 'slices'];
+          if (!isNaN(quantity) && validUnits.includes(unit) && name) {
+            newRecipeIngredients.push({ name, quantity, unit });
+            const li = document.createElement("li");
+            li.textContent = `${quantity} ${unit} ${name}`;
+            document.getElementById("new-ingredients-list").appendChild(li);
+            input.value = '';
+          } else {
+            showConfirmModal(
+              "Invalid Input",
+              "Please enter ingredient in format: quantity unit name\nValid units: quantity, cups, tbsp, tsp, oz, lbs, g, ml, slices",
+              () => {}
+            );
+          }
+        } else {
+          showConfirmModal(
+            "Invalid Input",
+            "Please enter ingredient in format: quantity unit name\nValid units: quantity, cups, tbsp, tsp, oz, lbs, g, ml, slices",
+            () => {}
+          );
+        }
       }
     }
 
     function saveNewRecipe() {
       const name = document.getElementById("new-recipe-name").value.trim();
+      const instructions = document.getElementById("new-recipe-instructions").value.trim();
+      
       if (name && newRecipeIngredients.length > 0) {
-        recipes.push({ name: name, ingredients: [...newRecipeIngredients] });
+        recipes.push({
+          name: name,
+          ingredients: [...newRecipeIngredients],
+          instructions: instructions
+        });
         renderRecipes();
         closeRecipeModal();
       } else {
@@ -558,7 +762,169 @@
     }
 
     function closeInventoryModal() {
-      document.getElementById("inventoryModal").style.display = "none";
+      document.getElementById("inventoryModal").classList.remove("active");
+    }
+
+    function updateHomePage() {
+      updateExpiringItems();
+      updateLowInventory();
+      updateRecipeSuggestions();
+      updateInventoryOverview();
+    }
+
+    function updateExpiringItems() {
+      const container = document.getElementById('expiring-items');
+      container.innerHTML = '';
+      
+      const today = new Date();
+      const expiringItems = [];
+      
+      // Collect all expiring items
+      for (const invName in inventories) {
+        inventories[invName].forEach(item => {
+          if (item.expiry) {
+            const expiryDate = new Date(item.expiry);
+            const daysUntilExpiry = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+            if (daysUntilExpiry <= 3 && daysUntilExpiry >= 0) {
+              expiringItems.push({
+                ...item,
+                inventory: invName,
+                daysUntilExpiry
+              });
+            }
+          }
+        });
+      }
+      
+      if (expiringItems.length === 0) {
+        container.innerHTML = '<p class="no-items">No items expiring soon</p>';
+        return;
+      }
+      
+      // Sort by expiry date
+      expiringItems.sort((a, b) => a.daysUntilExpiry - b.daysUntilExpiry);
+      
+      // Display items
+      expiringItems.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'expiring-item';
+        div.innerHTML = `
+          <span class="item-name">${item.item}</span>
+          <span class="item-details">
+            ${item.quantity} ${item.measure} - ${item.inventory}
+          </span>
+          <span class="expiry-warning ${item.daysUntilExpiry === 0 ? 'expired' : 'expiring-soon'}">
+            ${item.daysUntilExpiry === 0 ? 'Expires today!' : `Expires in ${item.daysUntilExpiry} days`}
+          </span>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function updateLowInventory() {
+      const container = document.getElementById('low-inventory');
+      container.innerHTML = '';
+      
+      const lowItems = [];
+      const LOW_THRESHOLD = 2; // Consider items with quantity <= 2 as low
+      
+      // Collect low inventory items
+      for (const invName in inventories) {
+        inventories[invName].forEach(item => {
+          if (item.quantity <= LOW_THRESHOLD) {
+            lowItems.push({
+              ...item,
+              inventory: invName
+            });
+          }
+        });
+      }
+      
+      if (lowItems.length === 0) {
+        container.innerHTML = '<p class="no-items">No low inventory items</p>';
+        return;
+      }
+      
+      // Display items
+      lowItems.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'low-item';
+        div.innerHTML = `
+          <span class="item-name">${item.item}</span>
+          <span class="item-details">
+            ${item.quantity} ${item.measure} - ${item.inventory}
+          </span>
+          <button onclick="addToShoppingList('${item.item}', ${item.quantity}, '${item.measure}')">
+            Add to Shopping List
+          </button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function updateRecipeSuggestions() {
+      const container = document.getElementById('recipe-suggestions');
+      container.innerHTML = '';
+      
+      const inventoryItems = getAllInventoryItems();
+      const suggestedRecipes = recipes.filter(recipe => {
+        // Check if we have at least 70% of the ingredients
+        const requiredIngredients = recipe.ingredients.length;
+        const availableIngredients = recipe.ingredients.filter(ing => 
+          inventoryItems.has(ing.name.toLowerCase())
+        ).length;
+        return (availableIngredients / requiredIngredients) >= 0.7;
+      });
+      
+      if (suggestedRecipes.length === 0) {
+        container.innerHTML = '<p class="no-items">No recipe suggestions available</p>';
+        return;
+      }
+      
+      // Display up to 3 suggested recipes
+      suggestedRecipes.slice(0, 3).forEach(recipe => {
+        const div = document.createElement('div');
+        div.className = 'recipe-suggestion';
+        div.innerHTML = `
+          <h4>${recipe.name}</h4>
+          <p>${recipe.ingredients.length} ingredients</p>
+          <button onclick="showTab(4)">View Recipe</button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function updateInventoryOverview() {
+      const container = document.getElementById('inventory-overview');
+      container.innerHTML = '';
+      
+      // Count items in each inventory
+      const inventoryCounts = {};
+      for (const invName in inventories) {
+        inventoryCounts[invName] = inventories[invName].length;
+      }
+      
+      // Display inventory counts
+      for (const invName in inventoryCounts) {
+        const div = document.createElement('div');
+        div.className = 'inventory-count';
+        div.innerHTML = `
+          <span class="inventory-name">${invName}</span>
+          <span class="item-count">${inventoryCounts[invName]} items</span>
+          <button onclick="showInventory('${invName}')">View</button>
+        `;
+        container.appendChild(div);
+      }
+    }
+
+    function addToShoppingList(item, quantity, measure) {
+      shoppingList.push({
+        name: item,
+        quantity: quantity,
+        measure: measure
+      });
+      updateShoppingList();
+      showTab(3); // Switch to shopping list tab
     }
 
     updateGrid2();
