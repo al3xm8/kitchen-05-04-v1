@@ -5,10 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="kitchen-app-style.css"/>
   <title>Kitchen App</title>
-  <style>
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-  </style>
 </head>
 <body>
   <div class="background">
@@ -39,7 +35,13 @@
             <h3 id="current-inventory-name"></h3>
             <form id="inventory-form" onsubmit="addToInventory2(event)">
               <input type="text" id="inv-item" placeholder="Item" required />
-              <input type="number" id="inv-quantity" placeholder="Quantity" min="1" />
+              <input type="number" id="inv-quantity" placeholder="Quantity" min="1" required />
+              <select id="inv-measure" required>
+                <option value="quantity">Quantity</option>
+                <option value="ounces">Ounces</option>
+                <option value="slices">Slices</option>
+              </select>
+              <input type="date" id="inv-expiry" placeholder="Expiration Date" />
               <button type="submit">➕</button>
             </form>
             <div class="inventory-items-container">
@@ -52,10 +54,13 @@
         <!-- SHOPPING LIST TAB -->
         <div class="tab-content" id="tab3">
           <h2 class="tab-title">Shopping Lists</h2>
-          <button onclick="addItem()">Add</button>
+          <button class="add-item-btn" onclick="showAddItemForm()">➕ Add Item</button>
           <div class="shopping-list-box">
             <h3>Items Needed:</h3>
             <ul id="shopping-list-items"></ul>
+            <div class="purchase-controls">
+              <button class="purchase-btn" onclick="handlePurchasedItems()" disabled>Move to Inventory</button>
+            </div>
           </div>
         </div>
 
@@ -107,7 +112,11 @@
   </div>
 
   <script>
-    const shoppingList = ["Milk", "Bread", "Eggs"];
+    const shoppingList = [
+      { name: "Milk", quantity: 1, measure: "quantity" },
+      { name: "Bread", quantity: 2, measure: "slices" },
+      { name: "Eggs", quantity: 12, measure: "quantity" }
+    ];
     const recipes = [
       { name: "Omelette", ingredients: ["Eggs", "Milk", "Salt"] },
       { name: "Pasta", ingredients: ["Pasta", "Tomato Sauce", "Olive Oil"] },
@@ -165,9 +174,11 @@
       event.preventDefault();
       const item = document.getElementById('inv-item').value.trim();
       let quantity = parseInt(document.getElementById('inv-quantity').value || '1');
-      const existing = inventory.find(i => i.item.toLowerCase() === item.toLowerCase());
+      const measure = document.getElementById('inv-measure').value;
+      const expiry = document.getElementById('inv-expiry').value;
+      const existing = inventory.find(i => i.item.toLowerCase() === item.toLowerCase() && i.measure === measure);
       if (existing) existing.quantity += quantity;
-      else inventory.push({ item, quantity });
+      else inventory.push({ item, quantity, measure, expiry });
       updateInventory();
       updateCurrentItemsList();
       document.getElementById('inventory-form').reset();
@@ -175,10 +186,72 @@
 
     function updateInventory() {
       const list = document.getElementById('inventory');
+      if (!list) return; // Guard against null if not on inventory tab
+      
       list.innerHTML = '';
+      if (!inventory) return; // Guard against null inventory
+      
       inventory.forEach((entry, index) => {
         const li = document.createElement('li');
-        li.textContent = `${entry.item} (${entry.quantity})`;
+        const measureText = entry.measure === 'quantity' ? '' : ` ${entry.measure}`;
+        
+        // Create item display
+        const itemDisplay = document.createElement('div');
+        itemDisplay.className = 'item-display';
+        itemDisplay.innerHTML = `
+          <span class="item-name">${entry.item}</span>
+          <span class="item-quantity">(${entry.quantity}${measureText})</span>
+        `;
+        
+        // Create edit form (hidden by default)
+        const editForm = document.createElement('div');
+        editForm.className = 'edit-form';
+        editForm.style.display = 'none';
+        editForm.innerHTML = `
+          <input type="text" class="edit-name" value="${entry.item}" placeholder="Item name" />
+          <input type="number" class="edit-quantity" value="${entry.quantity}" min="1" placeholder="Quantity" />
+          <select class="edit-measure">
+            <option value="quantity" ${entry.measure === 'quantity' ? 'selected' : ''}>Quantity</option>
+            <option value="ounces" ${entry.measure === 'ounces' ? 'selected' : ''}>Ounces</option>
+            <option value="slices" ${entry.measure === 'slices' ? 'selected' : ''}>Slices</option>
+          </select>
+          <button class="save-edit">Save</button>
+          <button class="cancel-edit">Cancel</button>
+        `;
+        
+        // Create controls container
+        const controls = document.createElement('div');
+        controls.className = 'item-controls';
+        
+        // Edit button
+        const editBtn = document.createElement('button');
+        editBtn.textContent = '✏️';
+        editBtn.onclick = () => {
+          itemDisplay.style.display = 'none';
+          editForm.style.display = 'flex';
+          controls.style.display = 'none';
+        };
+        
+        // Consume button
+        const consumeBtn = document.createElement('button');
+        consumeBtn.textContent = '🍽️';
+        consumeBtn.onclick = () => {
+          itemDisplay.style.display = 'none';
+          consumeForm.style.display = 'flex';
+          controls.style.display = 'none';
+        };
+        
+        // Remove button
+        const removeBtn = document.createElement('button');
+        removeBtn.textContent = '🗑️';
+        removeBtn.onclick = () => {
+          inventory.splice(index, 1);
+          updateInventory();
+          updateCurrentItemsList();
+        };
+        
+        controls.append(editBtn, consumeBtn, removeBtn);
+        li.append(itemDisplay, editForm, controls);
         list.appendChild(li);
       });
     }
@@ -189,17 +262,25 @@
       for (const invName in inventories) {
         inventories[invName].forEach(entry => {
           const li = document.createElement("li");
-          li.textContent = `${entry.item} (${entry.quantity}) - ${invName}`;
+          const measureText = entry.measure === 'quantity' ? '' : ` ${entry.measure}`;
+          const expiryText = entry.expiry ? ` - Expires: ${new Date(entry.expiry).toLocaleDateString()}` : '';
+          li.textContent = `${entry.item} (${entry.quantity}${measureText})${expiryText} - ${invName}`;
+          
+          // Add expiry status class if item has expiry date
+          if (entry.expiry) {
+            const today = new Date();
+            const expiryDate = new Date(entry.expiry);
+            const daysUntilExpiry = Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24));
+            
+            if (daysUntilExpiry < 0) {
+              li.classList.add('expired');
+            } else if (daysUntilExpiry <= 3) {
+              li.classList.add('expiring-soon');
+            }
+          }
+          
           list.appendChild(li);
         });
-      }
-    }
-
-    function addItem() {
-      const newItem = prompt("Enter new item:");
-      if (newItem) {
-        shoppingList.push(newItem.trim());
-        updateShoppingList();
       }
     }
 
@@ -208,65 +289,201 @@
       ul.innerHTML = "";
       shoppingList.forEach((item, index) => {
         const li = document.createElement("li");
-        const span = document.createElement("span");
-        span.textContent = item;
-
-        const controls = document.createElement("span");
-        const editBtn = document.createElement("button");
-        editBtn.textContent = "Edit";
-        editBtn.onclick = () => editItem(index);
-
-        const removeBtn = document.createElement("button");
-        removeBtn.textContent = "Remove";
-        removeBtn.onclick = () => removeItem(index);
-
-        const purchaseBtn = document.createElement("button");
-        purchaseBtn.textContent = "Purchased";
-        purchaseBtn.onclick = () => handlePurchased(index);
-
-        controls.append(editBtn, removeBtn, purchaseBtn);
-        li.append(span, controls);
+        
+        // Create checkbox
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'item-checkbox';
+        checkbox.onchange = () => updatePurchaseButton();
+        
+        // Create item display
+        const itemDisplay = document.createElement('div');
+        itemDisplay.className = 'item-display';
+        const measureText = item.measure === 'quantity' ? '' : ` ${item.measure}`;
+        itemDisplay.innerHTML = `
+          <span class="item-name">${item.name}</span>
+          <span class="item-quantity">(${item.quantity}${measureText})</span>
+        `;
+        
+        // Create edit form (hidden by default)
+        const editForm = document.createElement('div');
+        editForm.className = 'edit-form';
+        editForm.style.display = 'none';
+        editForm.innerHTML = `
+          <input type="text" class="edit-name" value="${item.name}" placeholder="Item name" />
+          <input type="number" class="edit-quantity" value="${item.quantity}" min="1" placeholder="Quantity" />
+          <select class="edit-measure">
+            <option value="quantity" ${item.measure === 'quantity' ? 'selected' : ''}>Quantity</option>
+            <option value="ounces" ${item.measure === 'ounces' ? 'selected' : ''}>Ounces</option>
+            <option value="slices" ${item.measure === 'slices' ? 'selected' : ''}>Slices</option>
+          </select>
+          <button class="save-edit">Save</button>
+          <button class="cancel-edit">Cancel</button>
+        `;
+        
+        // Create controls container
+        const controls = document.createElement('div');
+        controls.className = 'item-controls';
+        
+        // Edit button
+        const editBtn = document.createElement('button');
+        editBtn.textContent = '✏️';
+        editBtn.onclick = () => {
+          itemDisplay.style.display = 'none';
+          editForm.style.display = 'flex';
+          controls.style.display = 'none';
+        };
+        
+        // Remove button
+        const removeBtn = document.createElement('button');
+        removeBtn.textContent = '🗑️';
+        removeBtn.onclick = () => {
+          shoppingList.splice(index, 1);
+          updateShoppingList();
+        };
+        
+        // Add event listeners for edit form
+        editForm.querySelector('.save-edit').onclick = () => {
+          const newName = editForm.querySelector('.edit-name').value.trim();
+          const newQuantity = parseInt(editForm.querySelector('.edit-quantity').value) || 1;
+          const newMeasure = editForm.querySelector('.edit-measure').value;
+          if (newName && newQuantity > 0) {
+            shoppingList[index] = {
+              name: newName,
+              quantity: newQuantity,
+              measure: newMeasure
+            };
+            updateShoppingList();
+          }
+        };
+        
+        editForm.querySelector('.cancel-edit').onclick = () => {
+          itemDisplay.style.display = 'flex';
+          editForm.style.display = 'none';
+          controls.style.display = 'flex';
+        };
+        
+        controls.append(editBtn, removeBtn);
+        li.append(checkbox, itemDisplay, editForm, controls);
         ul.appendChild(li);
       });
     }
 
-    function editItem(index) {
-      const updated = prompt("Edit item:", shoppingList[index]);
-      if (updated) {
-        shoppingList[index] = updated.trim();
-        updateShoppingList();
-      }
+    function updatePurchaseButton() {
+      const checkedItems = document.querySelectorAll('.item-checkbox:checked');
+      const purchaseBtn = document.querySelector('.purchase-btn');
+      purchaseBtn.disabled = checkedItems.length === 0;
     }
 
-    function removeItem(index) {
-      shoppingList.splice(index, 1);
-      updateShoppingList();
-    }
-
-    function handlePurchased(index) {
-      const item = shoppingList.splice(index, 1)[0];
-      updateShoppingList();
+    function handlePurchasedItems() {
+      const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
+      const itemsToMove = [];
+      
+      // Collect checked items
+      checkedBoxes.forEach(checkbox => {
+        const li = checkbox.closest('li');
+        const index = Array.from(li.parentNode.children).indexOf(li);
+        itemsToMove.push(shoppingList[index]);
+      });
+      
+      // Create inventory selection modal
       const modal = document.getElementById("inventoryModal");
       const container = document.getElementById("inventory-buttons");
       container.innerHTML = "";
-
+      
+      // Add inventory selection buttons
       for (const name in inventories) {
         const btn = document.createElement("button");
         btn.textContent = name;
         btn.onclick = () => {
-          inventories[name].push({ item, quantity: 1 });
+          // Move items to selected inventory
+          itemsToMove.forEach(item => {
+            // Check if item already exists in inventory
+            const existingItem = inventories[name].find(i => 
+              i.item.toLowerCase() === item.name.toLowerCase() && 
+              i.measure === item.measure
+            );
+            
+            if (existingItem) {
+              // If item exists, add to its quantity
+              existingItem.quantity += item.quantity;
+            } else {
+              // If item doesn't exist, add new entry
+              inventories[name].push({
+                item: item.name,
+                quantity: item.quantity,
+                measure: item.measure
+              });
+            }
+          });
+          
+          // Remove moved items from shopping list
+          const indicesToRemove = [];
+          checkedBoxes.forEach(checkbox => {
+            const li = checkbox.closest('li');
+            const index = Array.from(li.parentNode.children).indexOf(li);
+            indicesToRemove.push(index);
+          });
+          
+          // Remove items in reverse order to avoid index issues
+          indicesToRemove.sort((a, b) => b - a).forEach(index => {
+            shoppingList.splice(index, 1);
+          });
+          
           modal.style.display = "none";
-          if (currentInventory === name) updateInventory();
+          updateShoppingList();
+          updateGrid2(); // Update inventory grid
+          if (currentInventory === name) {
+            updateInventory(); // Update current inventory view
+          }
           updateCurrentItemsList();
         };
         container.appendChild(btn);
       }
-
+      
       modal.style.display = "flex";
     }
 
-    function closeInventoryModal() {
-      document.getElementById("inventoryModal").style.display = "none";
+    function showAddItemForm() {
+      const ul = document.getElementById("shopping-list-items");
+      const li = document.createElement("li");
+      li.className = "new-item-form";
+      
+      const form = document.createElement('div');
+      form.className = 'edit-form';
+      form.innerHTML = `
+        <input type="text" class="edit-name" placeholder="Enter new item" />
+        <input type="number" class="edit-quantity" value="1" min="1" placeholder="Quantity" />
+        <select class="edit-measure">
+          <option value="quantity">Quantity</option>
+          <option value="ounces">Ounces</option>
+          <option value="slices">Slices</option>
+        </select>
+        <button class="save-edit">Add</button>
+        <button class="cancel-edit">Cancel</button>
+      `;
+      
+      form.querySelector('.save-edit').onclick = () => {
+        const newName = form.querySelector('.edit-name').value.trim();
+        const newQuantity = parseInt(form.querySelector('.edit-quantity').value) || 1;
+        const newMeasure = form.querySelector('.edit-measure').value;
+        if (newName && newQuantity > 0) {
+          shoppingList.push({
+            name: newName,
+            quantity: newQuantity,
+            measure: newMeasure
+          });
+          updateShoppingList();
+        }
+      };
+      
+      form.querySelector('.cancel-edit').onclick = () => {
+        li.remove();
+      };
+      
+      li.appendChild(form);
+      ul.insertBefore(li, ul.firstChild);
+      form.querySelector('.edit-name').focus();
     }
 
     function getAllInventoryItems() {
@@ -338,6 +555,10 @@
       } else {
         alert("Please provide a name and at least one ingredient.");
       }
+    }
+
+    function closeInventoryModal() {
+      document.getElementById("inventoryModal").style.display = "none";
     }
 
     updateGrid2();
