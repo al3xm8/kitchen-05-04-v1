@@ -108,10 +108,13 @@
               <div class="profile-fields">
                 <div><strong>Name:</strong> <span id="profile-name"></span></div>
                 <div><strong>Email:</strong> <span id="profile-email"></span></div>
-                <div><strong>Shopping Streak:</strong> <span id="profile-streak"></span></div>
+                <div><strong>Days on the App:</strong> <span id="profile-streak"></span></div>
               </div>
             </div>
             <button class="profile-edit-btn" onclick="toggleEdit(true)">Edit Profile</button>
+            <button id="themeToggle" class="profile-edit-btn">
+              🌓 Switch theme
+            </button>          
           </div>
           <!-- Edit Mode -->
           <div id="profile-edit" class="profile-container" style="display:none;">
@@ -244,7 +247,7 @@
       firstName:"John",
       lastName:"Doe",
       email:"john.doe@example.com",
-      streak:0
+      streak:1
     };
 
     // ——— Tab switching ———
@@ -644,6 +647,17 @@
     updateGrid2();
     updateShoppingList();
     loadProfile();
+    // read saved theme or default to light
+    const saved = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', saved);
+
+    const btn = document.getElementById('themeToggle');
+    btn.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+    });
   </script>
 </body>
 </html>
